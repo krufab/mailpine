@@ -1,0 +1,244 @@
+#######################
+## GENERALS SETTINGS ##
+#######################
+
+smtpd_banner         = $myhostname ESMTP $mail_name
+compatibility_level  = 2
+biff                 = no
+append_dot_mydomain  = no
+readme_directory     = no
+allow_percent_hack   = no
+delay_warning_time   = 4h
+mailbox_command      = procmail -a "$EXTENSION"
+recipient_delimiter  = +
+disable_vrfy_command = yes
+message_size_limit   = 502400000
+mailbox_size_limit   = 1024000000
+
+inet_interfaces = all
+inet_protocols = all
+
+myhostname    = ${MP_FQDN_MAIL}
+myorigin      = ${MP_FQDN_MAIL}
+mydestination = localhost localhost.$mydomain
+mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.0.0.0/8 192.168.0.0/16
+
+alias_maps = hash:/etc/postfix/aliases
+
+###############
+## SMTP/UTF8 ##
+###############
+
+smtputf8_enable = no
+
+# The default is to enable "SMTPUTF8 required" autodetection
+# only for Postfix sendmail command-line submissions and address
+# verification probes.
+# https://github.com/hardware/mailserver/issues/166
+# smtputf8_autodetect_classes = all
+
+###################
+## RATE LIMITING ##
+###################
+
+# Allow to avoid 421 error when send bulk mail
+default_destination_rate_delay = 1s
+default_destination_recipient_limit = 10
+
+# concurrency_limit has no effect when rate_delay is turned on.
+# It specifies a delay BETWEEN deliveries, meaning the deliveries
+# cannot be in parallel.
+# default_destination_concurrency_limit=2
+
+####################
+## TLS PARAMETERS ##
+####################
+
+# Smtp ( OUTGOING )
+smtp_tls_loglevel            = 1
+
+# Without unbound
+# http://www.postfix.org/TLS_README.html
+#smtp_tls_security_level      = may
+#smtp_dns_support_level       = dnssec
+
+# With unbound
+smtp_tls_security_level      = dane
+smtp_dns_support_level       = dnssec
+
+smtp_tls_CApath              = /data/certs
+smtp_tls_protocols           = !TLSv1, !SSLv2, !SSLv3
+smtp_tls_mandatory_protocols = !TLSv1, !SSLv2, !SSLv3
+smtp_tls_mandatory_ciphers   = medium
+smtp_tls_note_starttls_offer = yes
+
+# Smtpd ( INCOMING )
+smtpd_tls_loglevel            = 1
+smtpd_tls_auth_only           = yes
+smtpd_tls_security_level      = may
+smtpd_tls_received_header     = yes
+smtpd_tls_protocols           = !TLSv1, !SSLv2, !SSLv3
+smtpd_tls_mandatory_protocols = !TLSv1, !SSLv2, !SSLv3
+smtpd_tls_mandatory_ciphers   = medium
+smtpd_tls_exclude_ciphers     = aNULL,eNULL,EXPORT,DES,3DES,RC2,RC4,MD5,PSK,SRP,DSS,AECDH,ADH,SEED
+smtpd_tls_CApath              = /data/certs
+smtpd_tls_cert_file           = /data/certs/fullchain.cer
+smtpd_tls_key_file            = /data/certs/server.key
+smtpd_tls_dh1024_param_file   = /etc/postfix/ffdhe2048.pem
+
+tls_preempt_cipherlist = yes
+tls_random_source      = dev:/dev/urandom
+
+smtp_tls_session_cache_database  = btree:${data_directory}/smtp_scache
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+lmtp_tls_session_cache_database  = btree:${data_directory}/lmtp_scache
+
+#####################
+## SASL PARAMETERS ##
+#####################
+
+smtpd_sasl_auth_enable          = yes
+smtpd_sasl_type                 = dovecot
+smtpd_sasl_path                 = private/auth
+smtpd_sasl_security_options     = noanonymous
+smtpd_sasl_tls_security_options = $smtpd_sasl_security_options
+smtpd_sasl_local_domain         = $mydomain
+smtpd_sasl_authenticated_header = no
+
+
+smtpd_sender_login_maps  = proxy:mysql:/etc/postfix/sql/sender-login-maps.cf
+broken_sasl_auth_clients = yes
+
+##############################
+## VIRTUALS MAPS PARAMETERS ##
+##############################
+
+virtual_uid_maps        = static:1000
+virtual_gid_maps        = static:1000
+virtual_minimum_uid     = 1000
+virtual_mailbox_base    = /data/mail
+virtual_transport       = lmtp:unix:private/dovecot-lmtp
+
+virtual_mailbox_domains = proxy:mysql:/etc/postfix/sql/virtual-mailbox-domains.cf
+virtual_mailbox_maps    = proxy:mysql:/etc/postfix/sql/virtual-mailbox-maps.cf,
+                          proxy:mysql:/etc/postfix/sql/virtual-alias-domain-mailbox-maps.cf
+virtual_alias_maps      = proxy:mysql:/etc/postfix/sql/virtual-alias-maps.cf,
+                          proxy:mysql:/etc/postfix/sql/virtual-alias-domain-maps.cf,
+                          proxy:mysql:/etc/postfix/sql/virtual-alias-domain-catchall-maps.cf,
+                          hash:/etc/postfix/virtual
+
+######################
+## ERRORS REPORTING ##
+######################
+
+# notify_classes = bounce, delay, resource, software
+notify_classes = resource, software
+
+error_notice_recipient     = postmaster@${MP_DOMAIN}
+# delay_notice_recipient   = postmaster@${MP_DOMAIN}
+# bounce_notice_recipient  = postmaster@${MP_DOMAIN}
+# 2bounce_notice_recipient = postmaster@${MP_DOMAIN}
+
+##################
+## RESTRICTIONS ##
+##################
+
+##
+# Access restrictions for mail relay control that the Postfix SMTP server applies
+# in the context of the RCPT TO command, before smtpd_recipient_restrictions
+##
+
+# * permit_mynetworks : Permit the request when the client IP address matches any trusted network
+# * permit_sasl_authenticated : Permit the request when the client is successfully authenticated
+# * reject_unauth_destination : No one else, reject all others relaying requests
+
+smtpd_relay_restrictions=
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination
+
+##
+# Restrictions that the Postfix SMTP server applies in the context
+# of a client MAIL FROM command
+##
+
+# * reject_non_fqdn_sender : Reject when the MAIL FROM address is not in fully-qualified domain form
+# * reject_unknown_sender_domain : Reject when the MAIL FROM domain has no DNS MX, no DNS A record or a malformed MX record
+# * reject_sender_login_mismatch: Reject when the client is not (SASL) logged in as that MAIL FROM address owner or when the client is (SASL) logged in, but the client login name doesn't own the MAIL FROM address
+# * reject_rhsbl_sender : Reject when the MAIL FROM domain is blacklisted in dbl.spamhaus.org
+
+smtpd_sender_restrictions=
+    reject_non_fqdn_sender,
+    reject_unknown_sender_domain,
+# postfix/smtpd[388]: NOQUEUE: reject: RCPT from web_pa_1.mail_mail[172.31.0.3]: 553 5.7.1 <fabio@fabio.is>: Sender address rejected: not logged in; from=<fabio@fabio.is> to=<fabio@fabio.is> proto=ESMTP helo=<web_pa_1.mail_mail>
+#    reject_sender_login_mismatch,
+    reject_unlisted_sender,
+    reject_rhsbl_sender dbl.spamhaus.org,
+#http://www.postfix.org/ADDRESS_VERIFICATION_README.html
+#    check_sender_access hash:/etc/postfix/sender_access
+
+##
+# Restrictions that the Postfix SMTP server applies in the context
+# of a client RCPT TO command, after smtpd_relay_restrictions
+##
+
+# * permit_mynetworks : Permit the request when the client IP address matches any trusted network
+# * permit_sasl_authenticated : Permit the request when the client is successfully authenticated
+# * reject_unknown_recipient_domain : Reject when the RCPT TO domain has no DNS MX or no DNS A record or a malformed MX record
+# * reject_non_fqdn_recipient : Reject when the RCPT TO address is not in fully-qualified domain form
+# * reject_unlisted_recipient : Reject when the RCPT TO address is not listed in the list of valid recipients for its domain
+# * reject_rbl_client : Reject connections from IP addresses blacklisted in zen.spamhaus.org
+
+smtpd_recipient_restrictions=
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unknown_recipient_domain,
+    reject_non_fqdn_recipient,
+    reject_unlisted_recipient,
+    reject_rbl_client zen.spamhaus.org
+
+##
+# Restrictions that the Postfix SMTP server applies in the context of a client HELO command
+##
+
+# Fully enforce helo restriction
+# without "smtpd_helo_required = yes", a client can simply skip
+# smtpd_helo_restrictions by not sending HELO or EHLO
+smtpd_helo_required = yes
+
+# * permit_mynetworks : Permit the request when the client IP address matches any trusted network
+# * permit_sasl_authenticated : Permit the request when the client is successfully authenticated
+# * reject_invalid_helo_hostname : Reject the request when the HELO or EHLO hostname is malformed
+# * reject_non_fqdn_helo_hostname : Reject the request when the HELO or EHLO hostname is not in fully-qualified domain
+
+smtpd_helo_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_invalid_helo_hostname,
+    reject_non_fqdn_helo_hostname
+
+############
+## RSPAMD ##
+############
+
+milter_protocol       = 6
+milter_default_action = accept
+smtpd_milters         = inet:opendkim:8891 inet:opendmarc:8893
+#non_smtpd_milters     = inet:opendkim:8891 inet:opendmarc:8893
+
+submission_milters = inet:opendkim:8891
+non_smtpd_milters = $submission_milters
+
+#smtpd_milters         = inet:localhost:11332
+#non_smtpd_milters     = inet:localhost:11332
+
+
+############
+## ZEYPLE ##
+############
+
+#content_filter = zeyple
+
+#######################
+## YOUR CUSTOM RULES ##
+#######################

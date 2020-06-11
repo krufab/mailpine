@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+echo "s6-supervise: spawning syslog process"
+
+exec syslogd -n -t

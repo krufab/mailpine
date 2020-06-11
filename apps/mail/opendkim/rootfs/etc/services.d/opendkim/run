@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+echo "s6-supervise: spawning opendkim process"
+
+exec opendkim -f

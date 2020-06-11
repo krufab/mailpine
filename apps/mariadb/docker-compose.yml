@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+
+  mariadb:
+    image: mariadb:10.4
+#    build:
+#      context: .
+    env_file:
+      - .env
+    expose:
+      - 3306
+    networks:
+      - mariadb
+    volumes:
+      - "./rootfs/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
+      - "./rootfs/etc/mysql/conf.d:/etc/mysql/conf.d"
+      - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_DATA_DIR}/mariadb:/var/lib/mysql"
+
+networks:
+  mariadb:
+    driver: bridge

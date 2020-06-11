@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+echo "s6-supervise: spawning postfix process"
+
+exec postfix start-fg

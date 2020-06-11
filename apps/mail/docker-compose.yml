@@ -1,0 +1,71 @@
+version: "3.7"
+
+services:
+  mail:
+    build:
+      context: mail
+    env_file:
+      - .env
+    extra_hosts:
+      - "mail.fabio.is:51.15.79.253"
+    networks:
+      - database
+      - mail
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+      - "4190:4190"
+    volumes:
+      - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_DATA_DIR}/mail:/data/mail"
+
+  opendkim:
+    build:
+      context: opendkim
+    env_file:
+      - .env
+    expose:
+      - 8891
+    networks:
+      - mail
+    volumes:
+      - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_DATA_DIR}/opendkim:/data/opendkim"
+
+  opendmarc:
+    build:
+      context: opendmarc
+    env_file:
+      - .env
+    expose:
+      - 8893
+    networks:
+      - mail
+    volumes:
+      - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_DATA_DIR}/opendmarc:/data/opendmarc"
+
+  unbound:
+    build:
+      context: unbound
+    env_file:
+      - .env
+    expose:
+      - 53
+      - 8953
+    networks:
+      - mail
+    ports:
+      - "8953:8953"
+    volumes:
+      - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_DATA_DIR}/unbound:/data/unbound"
+
+networks:
+  database:
+    external:
+      name: mp_mariadb_mariadb
+  mail:
+    driver: bridge

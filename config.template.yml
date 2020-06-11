@@ -1,0 +1,37 @@
+version: '1'
+
+config:
+  acme.sh:
+    account_email:
+    default_dns_challenge:
+    dns_renew:
+    force: false
+    staging: false
+  data-dir: './data'
+  timezone: "Europe/Luxembourg"
+
+domains:
+  - domain: 'example.com'
+    mail: 'mail'
+    smtp: 'smtp'
+  - domain: 'example.org'
+  - domain: 'example.net'
+
+services:
+  database:
+    internal: true
+  traefik:
+    dashboard:
+      enabled: true
+      host: traefik
+    enabled: true
+  web_services:
+    - name: phpmyadmin
+      enabled: false
+      host: 'pma'
+    - name: postfixadmin
+      enabled: true
+      host: 'pa'
+    - name: roundcube
+      enabled: true
+      host: 'mail'

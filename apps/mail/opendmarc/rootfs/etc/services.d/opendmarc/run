@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+echo "s6-supervise: spawning opendmarc process"
+
+# Need to specify config file
+exec opendmarc -c /etc/opendmarc/opendmarc.conf -f

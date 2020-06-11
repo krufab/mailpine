@@ -1,0 +1,9 @@
+#hosts    = unix:/var/run/mysqld/mysqld.sock
+hosts    = ${MP_DATABASE_HOST}
+user     = ${MP_DATABASE_USER}
+password = ${MP_DATABASE_PASSWORD}
+dbname   = ${MP_DATABASE_DB}
+
+option_group = client
+
+query = SELECT goto FROM alias, alias_domain WHERE alias_domain.alias_domain = '%d' AND alias.address = CONCAT('@', alias_domain.target_domain) AND alias.active = TRUE AND alias_domain.active = TRUE

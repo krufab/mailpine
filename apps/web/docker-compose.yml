@@ -1,0 +1,92 @@
+version: "3.7"
+
+services:
+
+  nginx:
+    image: "nginx:1.17-alpine"
+    env_file:
+      - .env
+    expose:
+      - 443
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.tcp.routers.nginx.entrypoints=websecure"
+      - "traefik.tcp.routers.nginx.rule=HostSNI(${MP_NGINX_HOST_SNI})"
+      - "traefik.tcp.routers.nginx.service=nginx@docker"
+      - "traefik.tcp.routers.nginx.tls.passthrough=true"
+      - "traefik.tcp.services.nginx.loadbalancer.server.port=443"
+    networks:
+      - traefik
+    volumes:
+      - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - ./nginx/rootfs/etc/nginx/nginxconfig.io:/etc/nginx/nginxconfig.io
+      - ./nginx/rootfs/etc/nginx/sites-available:/etc/nginx/sites-available
+      - ./nginx/rootfs/etc/nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./nginx/rootfs/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+
+      - mail-root:/var/www/html/mail
+      - mail-socket:/var/run/mail
+      - pa-root:/var/www/html/pa
+      - pa-socket:/var/run/pa
+      - pma-root:/var/www/html/pma
+      - pma-socket:/var/run/pma
+
+  mail:
+    image: roundcube/roundcubemail:1.4.x-fpm-alpine
+    env_file:
+      - .env
+    networks:
+      - database
+      - mail
+    volumes:
+      - "${MP_DATA_DIR}/roundcube/logs/:/var/www/html/logs/"
+      - ./roundcubemail/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+      - ./roundcubemail/config.inc.php:/var/www/html/config/config.inc.php
+      - mail-root:/var/www/html
+      - mail-socket:/var/run/mail
+
+  pa:
+    build:
+      context: pa
+    env_file:
+      - .env
+    networks:
+      - database
+      - mail
+    volumes:
+      - ./pa/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+      - ./pa/config.local.php:/var/www/html/config.local.php
+      - pa-root:/var/www/html
+      - pa-socket:/var/run/pa
+
+  pma:
+    image: phpmyadmin/phpmyadmin:fpm-alpine
+    env_file:
+      - .env
+    networks:
+      - database
+    volumes:
+      - ./pma/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+      - ./pma/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+      - pma-root:/var/www/html
+      - pma-socket:/var/run/pma
+
+networks:
+  database:
+    external:
+      name: mp_mariadb_mariadb
+  mail:
+    external:
+      name: mp_mail_mail
+  traefik:
+    external:
+      name: mp_traefik_traefik
+
+volumes:
+  mail-root:
+  mail-socket:
+  pa-root:
+  pa-socket:
+  pma-root:
+  pma-socket:

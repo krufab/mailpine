@@ -1,0 +1,13 @@
+driver = mysql
+
+#connect = "host=/var/run/mysqld/mysqld.sock dbname=postfix user=dovecot password=password"
+connect = "host=${MP_DATABASE_HOST} dbname=${MP_DATABASE_DB} user=${MP_DATABASE_USER} password=${MP_DATABASE_PASSWORD}"
+
+# https://doc.dovecot.org/configuration_manual/authentication/password_schemes/
+# Must be the same used in postfixadmin
+#default_pass_scheme = SHA512-CRYPT
+default_pass_scheme = MD5-CRYPT
+
+iterate_query = SELECT username AS user FROM mailbox
+user_query = SELECT CONCAT('/data/mail/vhosts/',maildir) AS home, CONCAT('maildir:/data/mail/vhosts/',maildir,'mail') AS mail, 1000 AS uid, 1000 AS gid, CONCAT('*:bytes=',quota) AS quota_rule FROM mailbox WHERE username = '%u' AND active = TRUE
+password_query = SELECT password, CONCAT('*:bytes=',quota) AS userdb_quota_rule FROM mailbox WHERE username = '%u' AND active = TRUE
