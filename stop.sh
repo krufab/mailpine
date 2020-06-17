@@ -17,13 +17,8 @@ source "${THIS_PATH}/tools/commons.sh"
 source "${THIS_PATH}/tools/names.sh"
 
 (
-  cd apps/traefik/
-  PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "traefik")"
-  docker-compose --project-name "${PROFILE}" stop
-)
-(
-  cd apps/mariadb/
-  PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "mariadb")"
+  cd apps/web/
+  PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "web")"
   docker-compose --project-name "${PROFILE}" stop
 )
 (
@@ -32,7 +27,13 @@ source "${THIS_PATH}/tools/names.sh"
   docker-compose --project-name "${PROFILE}" stop
 )
 (
-  cd apps/web/
-  PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "web")"
+  cd apps/mariadb/
+  PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "mariadb")"
   docker-compose --project-name "${PROFILE}" stop
 )
+(
+  cd apps/traefik/
+  PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "traefik")"
+  docker-compose --project-name "${PROFILE}" stop
+)
+

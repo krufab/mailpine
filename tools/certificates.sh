@@ -105,8 +105,6 @@ function check_certificate() {
   ALL_DOMAINS=( ${@} )
 
   CERT_FILE="${CERTS_DIR}/fullchain.cer"
-#  CERT_FILE="${CERTS_DIR}/expired/server-fullchain.pem"
-#  CERT_FILE="${CERTS_DIR}/non-existent.cer"
 
   SHOULD_GENERATE_CERTIFICATE='false'
   if [[ -f "${CERT_FILE}" ]]; then
@@ -151,7 +149,9 @@ function check_certificate() {
   fi
 }
 
-function manage_certificates() {
+function configure_certificates() {
+  echo_ok "Checking certificates"
+
   local CONFIG_FILE DATA_DIR
   local CERTS_DIR
   local MAIN_DOMAIN MAIN_DOMAIN_NO_STAR
@@ -176,8 +176,7 @@ function manage_certificates() {
     echo_info "Not all domains found → Requesting new certificate"
     generate_certificate "${CONFIG_FILE}" "${DATA_DIR}" "${MAIN_DOMAIN_NO_STAR}" "${ALL_DOMAINS[@]}"
   else
-    echo_ok "Certificate contains all domains"
+    echo_ok_verbose "Certificate contains all domains"
   fi
+  echo_ok_verbose "Certificates check completed successfully"
 }
-
-export -f manage_certificates

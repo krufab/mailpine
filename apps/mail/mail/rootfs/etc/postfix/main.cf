@@ -221,16 +221,16 @@ smtpd_helo_restrictions =
 ## RSPAMD ##
 ############
 
-milter_protocol       = 6
-milter_default_action = accept
-smtpd_milters         = inet:opendkim:8891 inet:opendmarc:8893
-#non_smtpd_milters     = inet:opendkim:8891 inet:opendmarc:8893
+#milter_protocol       = 6
+#milter_default_action = accept
+#smtpd_milters         = inet:opendkim:8891 inet:opendmarc:8893
+##non_smtpd_milters     = inet:opendkim:8891 inet:opendmarc:8893
 
-submission_milters = inet:opendkim:8891
-non_smtpd_milters = $submission_milters
+#submission_milters = inet:opendkim:8891
+#non_smtpd_milters = $submission_milters
 
-#smtpd_milters         = inet:localhost:11332
-#non_smtpd_milters     = inet:localhost:11332
+##smtpd_milters         = inet:localhost:11332
+##non_smtpd_milters     = inet:localhost:11332
 
 
 ############

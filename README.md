@@ -29,9 +29,14 @@ vi config.yml
 
 ## Description
 
-### Configuration strep
+### Required tools
+- nc (netcat)
+- readlink with -f support (from coreutils package)
+- yq (https://github.com/mikefarah/yq)
 
-- Use acme.sh to request SSL certificates
+### Configuration steps
+
+- Uses acme.sh to request SSL certificates
 - Checks and creates opendkim keys
 - Checks and suggests TXT field for opendmarc 
 - Checks and suggests TXT field for spf 
@@ -40,16 +45,16 @@ vi config.yml
 - Configures postfix, dovecot, opendkim, opendmarc, unbound
 - Configures nginx, postfixadmin, roundcubemail, phpmyadmin
 
-### Run step
+### Run steps
 
 - Starts traefik
 - Starts mariadb
 - Starts postfix, dovecot, opendkim, opendmarc, unbound
 - Starts nginx, postfixadmin, roundcubemail, phpmyadmin
 
-### Run step
+### Stop steps
 
-- Stops traefik
-- Stops mariadb
-- Stops postfix, dovecot, opendkim, opendmarc, unbound
 - Stops nginx, postfixadmin, roundcubemail, phpmyadmin
+- Stops postfix, dovecot, opendkim, opendmarc, unbound
+- Stops mariadb
+- Stops traefik

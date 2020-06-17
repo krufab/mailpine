@@ -40,7 +40,7 @@ services:
       - database
       - mail
     volumes:
-      - "${MP_DATA_DIR}/roundcube/logs/:/var/www/html/logs/"
+      - "${MP_DATA_DIR}/roundcubemail/logs/:/var/www/html/logs/"
       - ./roundcubemail/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
       - ./roundcubemail/config.inc.php:/var/www/html/config/config.inc.php
       - mail-root:/var/www/html

@@ -5,8 +5,8 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-#declare TICK="\xE2\x9C\x94" # ✔
 declare TICK="✅" # ✅
+declare TICK_VERBOSE="\xE2\x9C\x94" # ✔
 declare CROSS="\u274c" # ❌
 #declare X2="\xE2\x9D\x8C"
 #declare X="\xE2\x9C\x94"
@@ -22,11 +22,23 @@ function echo_error() {
 }
 
 function echo_info() {
-  echo -e "${INFO} ${*}"
+  echo -e " ${INFO} ${*}"
+}
+
+function echo_info_verbose() {
+  if [[ "${VERBOSE}" == "1" ]]; then
+    echo -e " ${INFO} ${*}"
+  fi
 }
 
 function echo_ok() {
-  echo -e "${TICK} ${*}"
+  echo -e "\e[1;32m${TICK}\e[0m ${*}"
+}
+
+function echo_ok_verbose() {
+  if [[ "${VERBOSE}" == "1" ]]; then
+    echo -e " \e[1;32m${TICK_VERBOSE}\e[0m ${*}"
+  fi
 }
 
 function check_or_create_dir_or_exit() {
@@ -34,10 +46,10 @@ function check_or_create_dir_or_exit() {
   THE_DIR="${1}"
 
   if [[ -d "${THE_DIR}" ]]; then
-    echo_ok "'${THE_DIR}' already created"
+    echo_ok_verbose "'${THE_DIR}' already created"
   else
     if mkdir -p "${THE_DIR}"; then
-      echo_ok "'${THE_DIR}' directory created"
+      echo_ok_verbose "'${THE_DIR}' directory created"
     else
       echo_error "Directory '${THE_DIR}' could not be created"
       exit 1
@@ -78,4 +90,45 @@ function set_TZ_variable() {
     TIMEZONE="$(yq r "${CONFIG_FILE}" 'config.timezone')"
     sed -i -e "s|^TZ.*$|TZ=${TIMEZONE}|g" "${APP_DIR}/.env"
   fi
+}
+
+function check_config_version() {
+  echo_ok "Checking configuration file version"
+
+  local CONFIG_FILE MIN_CONFIG_VERSION
+  local CONFIG_VERSION
+
+  CONFIG_FILE="${1}"
+  MIN_CONFIG_VERSION="${2}"
+
+  CONFIG_VERSION=$(yq r "${CONFIG_FILE}" 'version')
+
+  if [[ "${MIN_CONFIG_VERSION}" != "${CONFIG_VERSION}" ]]; then
+    echo_error "Wrong configuration file version."
+    echo_info "You have: '${CONFIG_VERSION}'. Expected: '${MIN_CONFIG_VERSION}'."
+    exit 1
+  fi
+  echo_ok_verbose "Configuration file version check completed cuccessfully"
+}
+
+function get_verbose_value() {
+  local CONFIG_FILE
+  local VERBOSITY_LEVEL
+
+  CONFIG_FILE="${1}"
+
+  VERBOSITY_LEVEL=$(yq r "${CONFIG_FILE}" 'config.verbosity_level')
+  if [[ -z "${VERBOSITY_LEVEL}" ]]; then
+    echo "1"
+  else
+    echo "${VERBOSITY_LEVEL}"
+  fi
+}
+
+function run_step() {
+  local MP_P_ALL="${1}"
+  local MP_P_SEL="${2}"
+  local STEP="${3}"
+
+  [[ "${MP_P_ALL}" != "-" ]] || [[ "${MP_P_SEL}" == *"${STEP}"* ]]
 }

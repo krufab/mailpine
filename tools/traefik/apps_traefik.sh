@@ -5,7 +5,7 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function process_traefik() {
+function configure_traefik() {
   local CONFIG_FILE APPS_DIR DATA_DIR
   local APP_DIR
 

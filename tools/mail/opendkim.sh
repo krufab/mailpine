@@ -54,7 +54,8 @@ EOF
   fi
 }
 
-function manage_opendkim() {
+function configure_opendkim() {
+  echo_ok "Checking opendkim settings"
   local CONFIG_FILE OPENDKIM_DIR
   local CHROOT_BASE_DIR SELECTOR='mail'
   local DOMAIN_DIR PRIVATE_FILE TXT_FILE CHROOT_DIR
@@ -89,4 +90,5 @@ function manage_opendkim() {
   for DOMAIN in "${DOMAINS[@]}"; do
     generate_opendkim "${DOMAIN}" "${OPENDKIM_DIR}"
   done
+  echo_ok_verbose "Checking opendkim settings completed successfully"
 }
