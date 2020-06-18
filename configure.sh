@@ -32,16 +32,16 @@ if ! sed --help | grep -q -- '--follow-symlinks'; then
   exit 1
 fi
 
-#trap 'trap_error ${?} ${LINENO} ${BASH_LINENO} ${FUNCNAME[*]} ${BASH_SOURCE[*]}' ERR
-trap 'trap_exit ${?} ${LINENO} ${BASH_LINENO} ${FUNCNAME[*]} ${BASH_SOURCE[*]}' EXIT
+#trap 'trap_exit ${?} ${LINENO}' ERR
+#trap 'trap_exit ${?} ${LINENO} ${BASH_LINENO} ${FUNCNAME[*]} ${BASH_SOURCE[*]}' EXIT
 
 function trap_exit() {
   if [[ "$1" != "0" ]]; then
-    echo "Error   : ${1} at ${LINENO} $@"
-    echo "Function: ${FUNCNAME[*]}"
-    echo "File    : ${BASH_SOURCE[*]}"
+    echo "Error   : ${1} at ${2} $@"
+    echo "Function: ${FUNCNAME[1]}"
+    echo "File    : ${BASH_SOURCE[1]}"
     echo "Line    : ${LINENO}"
-    echo "Caller  : ${BASH_LINENO}"
+    echo "Caller  : ${BASH_LINENO[1]}"
     exit 1
   fi
 }
@@ -68,19 +68,19 @@ source "${THIS_PATH}/tools/commons.sh"
 source "${THIS_PATH}/tools/domains.sh"
 # shellcheck source=./tools/certificates.sh
 source "${THIS_PATH}/tools/certificates.sh"
+# shellcheck source=./tools/mail/apps_mail.sh
+source "${THIS_PATH}/tools/mail/apps_mail.sh"
+# shellcheck source=./tools/mariadb/apps_mariadb.sh
+source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"
+# shellcheck source=./tools/traefik/apps_traefik.sh
+source "${THIS_PATH}/tools/traefik/apps_traefik.sh"
+# shellcheck source=./tools/web/apps_web_services.sh
+source "${THIS_PATH}/tools/web/apps_web_services.sh"
 # shellcheck source=./tools/mail/opendkim.sh
 source "${THIS_PATH}/tools/mail/opendkim.sh"
-# shellcheck source=./tools/apps_mail.sh
-source "${THIS_PATH}/tools/mail/apps_mail.sh"
-# shellcheck source=./tools/apps_mariadb.sh
-source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"
-# shellcheck source=./tools/apps_traefik.sh
-source "${THIS_PATH}/tools/traefik/apps_traefik.sh"
-# shellcheck source=./tools/apps_web_services.sh
-source "${THIS_PATH}/tools/web/apps_web_services.sh"
-# shellcheck source=./tools/spf.sh
+# shellcheck source=./tools/mail/spf.sh
 source "${THIS_PATH}/tools/mail/spf.sh"
-# shellcheck source=./tools/opendmarc.sh
+# shellcheck source=./tools/mail/opendmarc.sh
 source "${THIS_PATH}/tools/mail/opendmarc.sh"
 # shellcheck source=./tools/names.sh
 source "${THIS_PATH}/tools/names.sh"

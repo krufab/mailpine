@@ -125,10 +125,25 @@ function get_verbose_value() {
   fi
 }
 
-function run_step() {
+function run_step_single() {
   local MP_P_ALL="${1}"
   local MP_P_SEL="${2}"
   local STEP="${3}"
 
   [[ "${MP_P_ALL}" != "-" ]] || [[ "${MP_P_SEL}" == *"${STEP}"* ]]
+}
+
+function run_step() {
+  local MP_P_ALL="${1}"
+  local MP_P_SEL="${2}"
+  local STEPS="${3}"
+  local STEP
+
+  for STEP in ${STEPS}; do
+    if run_step_single "${MP_P_ALL}" "${MP_P_SEL}" "${STEP}"; then
+      return 0
+    fi
+  done
+
+  return 1
 }

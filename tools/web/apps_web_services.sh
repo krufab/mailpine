@@ -38,7 +38,6 @@ function configure_web_services() {
     DB_HOST="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "mariadb" "mariadb")"
     POSTFIXADMIN="$(grep 'MP_PASSWORD_POSTFIXADMIN=' "${APPS_DIR}/mariadb/.env")"
     ROUNDCUBE="$(grep 'MP_PASSWORD_ROUNDCUBE=' "${APPS_DIR}/mariadb/.env")"
-    CONTAINER_SMTP="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "mariadb" "mariadb")"
     PA_SMTP_SERVER="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "mail" "mail")"
     PA_SMTP_CLIENT="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "web" "pa")"
     FQDN_MAIL="$(get_MP_FQDN_x "${CONFIG_FILE}" "mail")"

@@ -1,8 +1,10 @@
-- [ ] Selectively:
-  - [X] configure services (i.e. `configure.sh -s opendkim`)
-  - [ ] start service (i.e. `run.sh -s opendkim`)
-  - [ ] stop service (i.e. `stop.sh -s opendkim`)
+- &check; Selectively:
+  - configure services (i.e. `configure.sh -s opendkim`)
+  - start service (i.e. `run.sh -s opendkim`)
+  - stop service (i.e. `stop.sh -s opendkim`)
 - [ ] Debug (i.e. `configure.sh -D`)
   - [ ] Selectively debug service (i.e. `configure.sh -d opendkim`)
-- Log folders
+- Logs folder
 - Backup folder
+- Tests
+- Antivirus
