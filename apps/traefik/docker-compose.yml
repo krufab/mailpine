@@ -5,38 +5,50 @@ services:
   traefik:
     image: "traefik:v2.2.1"
     command:
-      - "--log.level=${MP_TRAEFIK_LOGLEVEL}"
       - "--api=true"
       - "--api.dashboard=${MP_TRAEFIK_DASHBOARD_ENABLED}"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.caserver=${MP_TRAEFIK_CASERVER}"
       - "--certificatesresolvers.myresolver.acme.email=${MP_TRAEFIK_ACME_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/data/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+#      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--log.level=${MP_TRAEFIK_LOGLEVEL}"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/tmp/traefik.yaml"
     env_file:
       - .env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.middlewares=secure-headers@docker"
       - "traefik.http.routers.api.rule=Host(`${MP_FQDN_TRAEFIK_DASHBOARD}`)"
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
+      - "traefik.http.routers.api.tls.options=maxtls12@file"
 # Redirect to https
-      - "traefik.http.routers.http-catchall.entrypoints=web"
-      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.*}`)"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+#      - "traefik.http.routers.http-catchall.entrypoints=web"
+#      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.*}`)"
+#      - "traefik.http.routers.http-catchall.middlewares=chained@docker"
+#      - "traefik.http.middlewares.chained.chain.middlewares=redirect-to-https@docker,secure-headers@docker"
+
+#      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+# HTTP STS
+      - "traefik.http.middlewares.secure-headers.headers.forceSTSHeader=true"<
+      - "traefik.http.middlewares.secure-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.secure-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.secure-headers.headers.stsSeconds=31536000"
     networks:
       - traefik
     ports:
-      - "80:80"
+#      - "80:80"
       - "443:443"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yaml:/tmp/traefik.yaml"
+      - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_DATA_DIR}/letsencrypt:/data/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 networks:
   traefik:

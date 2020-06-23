@@ -65,7 +65,7 @@ chgrp -R postdrop /data/mail/postfix/spool/maildrop
 chgrp -R postdrop /data/mail/postfix/spool/public
 postfix set-permissions
 
-echo "Use unbound"
+
 # Use the local DNS server
 #echo "nameserver unbound" | tee /etc/resolv.conf \
 #                                /data/mail/postfix/spool/etc/resolv.conf \

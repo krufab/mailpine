@@ -60,11 +60,13 @@ smtp_tls_loglevel            = 1
 # Without unbound
 # http://www.postfix.org/TLS_README.html
 #smtp_tls_security_level      = may
-#smtp_dns_support_level       = dnssec
+#smtp_dns_support_level       = enabled
 
 # With unbound
 smtp_tls_security_level      = dane
-smtp_dns_support_level       = dnssec
+# dnssec is not supported in alpine
+#smtp_dns_support_level       = dnssec
+smtp_dns_support_level       = enabled
 
 smtp_tls_CApath              = /data/certs
 smtp_tls_protocols           = !TLSv1, !SSLv2, !SSLv3
@@ -221,13 +223,13 @@ smtpd_helo_restrictions =
 ## RSPAMD ##
 ############
 
-#milter_protocol       = 6
-#milter_default_action = accept
-#smtpd_milters         = inet:opendkim:8891 inet:opendmarc:8893
-##non_smtpd_milters     = inet:opendkim:8891 inet:opendmarc:8893
+milter_protocol       = 6
+milter_default_action = accept
+smtpd_milters         = inet:opendkim:8891 inet:opendmarc:8893
+#non_smtpd_milters     = inet:opendkim:8891 inet:opendmarc:8893
 
-#submission_milters = inet:opendkim:8891
-#non_smtpd_milters = $submission_milters
+submission_milters = inet:opendkim:8891
+non_smtpd_milters = $submission_milters
 
 ##smtpd_milters         = inet:localhost:11332
 ##non_smtpd_milters     = inet:localhost:11332

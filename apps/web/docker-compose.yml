@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   nginx:
-    image: "nginx:1.17-alpine"
+    image: "nginx:1.19-alpine"
     env_file:
       - .env
     expose:
@@ -18,8 +18,10 @@ services:
       - "traefik.tcp.services.nginx.loadbalancer.server.port=443"
     networks:
       - traefik
+#    ports: ["443:443"]
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_DATA_DIR}/nginx:/data/nginx:ro"
       - ./nginx/rootfs/etc/nginx/nginxconfig.io:/etc/nginx/nginxconfig.io
       - ./nginx/rootfs/etc/nginx/sites-available:/etc/nginx/sites-available
       - ./nginx/rootfs/etc/nginx/sites-enabled:/etc/nginx/sites-enabled

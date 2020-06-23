@@ -108,7 +108,7 @@ function check_config_version() {
     echo_info "You have: '${CONFIG_VERSION}'. Expected: '${MIN_CONFIG_VERSION}'."
     exit 1
   fi
-  echo_ok_verbose "Configuration file version check completed cuccessfully"
+  echo_ok_verbose "Configuration file version check completed successfully"
 }
 
 function get_verbose_value() {

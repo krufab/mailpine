@@ -4,7 +4,10 @@
   - stop service (i.e. `stop.sh -s opendkim`)
 - [ ] Debug (i.e. `configure.sh -D`)
   - [ ] Selectively debug service (i.e. `configure.sh -d opendkim`)
+  - [ ] Adjust verbosity of services
 - Logs folder
 - Backup folder
 - Tests
 - Antivirus
+- CAA RR validation
+

@@ -66,26 +66,10 @@ THIS_PATH="$(dirname "$(readlink --canonicalize "${0}")")"
 source "${THIS_PATH}/tools/commons.sh"
 # shellcheck source=./tools/domains.sh
 source "${THIS_PATH}/tools/domains.sh"
-# shellcheck source=./tools/certificates.sh
-source "${THIS_PATH}/tools/certificates.sh"
-# shellcheck source=./tools/mail/apps_mail.sh
-source "${THIS_PATH}/tools/mail/apps_mail.sh"
-# shellcheck source=./tools/mariadb/apps_mariadb.sh
-source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"
-# shellcheck source=./tools/traefik/apps_traefik.sh
-source "${THIS_PATH}/tools/traefik/apps_traefik.sh"
-# shellcheck source=./tools/web/apps_web_services.sh
-source "${THIS_PATH}/tools/web/apps_web_services.sh"
-# shellcheck source=./tools/mail/opendkim.sh
-source "${THIS_PATH}/tools/mail/opendkim.sh"
-# shellcheck source=./tools/mail/spf.sh
-source "${THIS_PATH}/tools/mail/spf.sh"
-# shellcheck source=./tools/mail/opendmarc.sh
-source "${THIS_PATH}/tools/mail/opendmarc.sh"
 # shellcheck source=./tools/names.sh
 source "${THIS_PATH}/tools/names.sh"
-# shellcheck source=./tools/docker.sh
-source "${THIS_PATH}/tools/docker.sh"
+# shellcheck source=./tools/prepare_folders.sh
+source "${THIS_PATH}/tools/prepare_folders.sh"
 
 declare CONFIG_FILE="${THIS_PATH}/config.yml"
 
@@ -134,39 +118,59 @@ while [[ ${#} -gt 0 ]]; do
   esac
 done
 
+prepare_folders "${DATA_DIR}" "${LOGS_DIR}"
+
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mailpine"; then
+  # shellcheck source=./tools/docker.sh
+  source "${THIS_PATH}/tools/docker.sh"
   check_mailpine_tools
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "certificates"; then
+  # shellcheck source=./tools/certificates.sh
+  source "${THIS_PATH}/tools/certificates.sh"
   configure_certificates "${CONFIG_FILE}" "${DATA_DIR}"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "opendkim"; then
+  # shellcheck source=./tools/mail/opendkim.sh
+  source "${THIS_PATH}/tools/mail/opendkim.sh"
   configure_opendkim "${CONFIG_FILE}" "${DATA_DIR}/opendkim"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "opendmarc"; then
+  # shellcheck source=./tools/mail/opendmarc.sh
+  source "${THIS_PATH}/tools/mail/opendmarc.sh"
   configure_opendmarc "${CONFIG_FILE}"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "spf"; then
+  # shellcheck source=./tools/mail/spf.sh
+  source "${THIS_PATH}/tools/mail/spf.sh"
   configure_spf "${CONFIG_FILE}"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "traefik"; then
+  # shellcheck source=./tools/traefik/apps_traefik.sh
+  source "${THIS_PATH}/tools/traefik/apps_traefik.sh"
   configure_traefik "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
+  # shellcheck source=./tools/mariadb/apps_mariadb.sh
+  source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"
   configure_mariadb "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mail"; then
+  # shellcheck source=./tools/mail/apps_mail.sh
+  source "${THIS_PATH}/tools/mail/apps_mail.sh"
   configure_mail "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "web"; then
+  # shellcheck source=./tools/web/apps_web_services.sh
+  source "${THIS_PATH}/tools/web/apps_web_services.sh"
   configure_web_services "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
 fi
 

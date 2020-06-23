@@ -77,6 +77,10 @@ function process_web_nginx() {
   APP_DIR="${APPS_DIR}/web"
   SERVICE_DIR="${APP_DIR}/nginx"
 
+  if [[ ! -f "${DATA_DIR}/nginx/dhparam.pem" ]]; then
+    openssl dhparam -out "${DATA_DIR}/nginx/dhparam.pem" 2048
+  fi
+
   (
     local ENABLED NAME
 

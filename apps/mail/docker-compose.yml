@@ -6,8 +6,6 @@ services:
       context: mail
     env_file:
       - .env
-    extra_hosts:
-      - "mail.fabio.is:51.15.79.253"
     networks:
       - database
       - mail

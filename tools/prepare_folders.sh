@@ -17,6 +17,7 @@ function prepare_folders() {
     'letsencrypt'
     'mail'
     'mail/postfix'
+    'nginx'
     'opendkim'
     'opendmarc'
     'roundcubemail'
