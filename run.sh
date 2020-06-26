@@ -33,24 +33,6 @@ source "${THIS_PATH}/tools/commons.sh"
 # shellcheck source=./tools/names.sh
 source "${THIS_PATH}/tools/names.sh"
 
-function run_traefik() {
-  local CONFIG_FILE="${1}"
-  local APPS_DIR="${2}"
-  local MP_DOCKER_COMMAND="${3}"
-  local IS_TRAEFIK_ENABLED PROFILE
-
-  IS_TRAEFIK_ENABLED="$(yq r "${CONFIG_FILE}" 'services.traefik.enabled')"
-  if [[ "${IS_TRAEFIK_ENABLED}" = "true" ]]; then
-    echo_ok "Starting traefik"
-    (
-      cd apps/traefik/
-      PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "traefik")"
-      set -x
-      docker-compose --project-name "${PROFILE}" ${MP_DOCKER_COMMAND}
-    )
-  fi
-}
-
 function run_mariadb() {
   local CONFIG_FILE="${1}"
   local APPS_DIR="${2}"
@@ -163,10 +145,6 @@ while [[ ${#} -gt 0 ]]; do
     ;;
   esac
 done
-
-if run_step "${MP_P_ALL}" "${MP_P_SEL}" "traefik"; then
-  run_traefik "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"
-fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
   run_mariadb "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"

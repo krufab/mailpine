@@ -8,6 +8,8 @@ config:
     dns_renew:
     enabled: true
     force: false
+    keylength: 4096
+    keylength-ec: ec-384
     staging: false
   data-dir: './data'
   docker:
@@ -36,12 +38,6 @@ services:
     spf:
       debug: true
       enabled: true
-  traefik:
-    dashboard:
-      enabled: true
-      host: traefik
-    debug: true
-    enabled: true
   web_services:
     phpmyadmin:
       debug: true

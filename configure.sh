@@ -150,12 +150,6 @@ if run_step "${MP_P_ALL}" "${MP_P_SEL}" "spf"; then
   configure_spf "${CONFIG_FILE}"
 fi
 
-if run_step "${MP_P_ALL}" "${MP_P_SEL}" "traefik"; then
-  # shellcheck source=./tools/traefik/apps_traefik.sh
-  source "${THIS_PATH}/tools/traefik/apps_traefik.sh"
-  configure_traefik "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
-fi
-
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
   # shellcheck source=./tools/mariadb/apps_mariadb.sh
   source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"

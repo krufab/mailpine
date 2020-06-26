@@ -6,19 +6,7 @@ services:
     image: "nginx:1.19-alpine"
     env_file:
       - .env
-    expose:
-      - 443
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.tcp.routers.nginx.entrypoints=websecure"
-      - "traefik.tcp.routers.nginx.rule=HostSNI(${MP_NGINX_HOST_SNI})"
-      - "traefik.tcp.routers.nginx.service=nginx@docker"
-      - "traefik.tcp.routers.nginx.tls.passthrough=true"
-      - "traefik.tcp.services.nginx.loadbalancer.server.port=443"
-    networks:
-      - traefik
-#    ports: ["443:443"]
+    ports: ["80:80", "443:443"]
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_DATA_DIR}/nginx:/data/nginx:ro"
@@ -81,9 +69,6 @@ networks:
   mail:
     external:
       name: mp_mail_mail
-  traefik:
-    external:
-      name: mp_traefik_traefik
 
 volumes:
   mail-root:

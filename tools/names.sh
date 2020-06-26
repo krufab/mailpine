@@ -27,9 +27,6 @@ function get_HOST_x() {
     phpmyadmin | postfixadmin | roundcube)
       HOST="$(yq r "${CONFIG_FILE}" "services.web_services.${NAME}.host")"
       ;;
-    traefik)
-      HOST="$(yq r "${CONFIG_FILE}" "services.traefik.dashboard.host")"
-      ;;
     *)
       echo_error "Invalid host: ${NAME}"
       exit 1

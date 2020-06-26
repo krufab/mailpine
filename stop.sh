@@ -57,11 +57,3 @@ if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
   docker-compose --project-name "${PROFILE}" stop
 )
 fi
-
-if run_step "${MP_P_ALL}" "${MP_P_SEL}" "traefik"; then
-(
-  cd apps/traefik/
-  PROFILE="$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "traefik")"
-  docker-compose --project-name "${PROFILE}" stop
-)
-fi

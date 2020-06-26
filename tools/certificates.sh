@@ -21,22 +21,39 @@ function get_container_network_or_die() {
 }
 
 function generate_certificate() {
-  local CONFIG_FILE DATA_DIR MAIN_DOMAIN_NO_STAR
-  local -a ALL_DOMAINS LIST_DOMAINS
-  local DNS_CHALLENGE DOCKER_PARAMS TRAEFIK_NETWORK
+  local CONFIG_FILE="${1}"
+  shift
+  local DATA_DIR="${1}"
+  shift
+  local KEY_TYPE="${1}"
+  shift
+  local MAIN_DOMAIN_NO_STAR="${1}"
+  shift
 
-  CONFIG_FILE="${1}"
-  shift
-  DATA_DIR="${1}"
-  shift
-  MAIN_DOMAIN_NO_STAR="${1}"
-  shift
-  ALL_DOMAINS=( ${@} )
+  local -a ALL_DOMAINS=( ${@} )
+  local -a LIST_DOMAINS
+  local IS_STAGING_CA DNS_CHALLENGE DOCKER_PARAMS
 
   local ACME_DIR="${DATA_DIR}/acme.sh"
   local CERTS_DIR="${DATA_DIR}/certs"
+  local ACME_CA=""
+  local KEY_LENGTH KEY_TYPE_FOLDER
 
+  if [[ "${KEY_TYPE}" == "-" ]]; then
+    KEY_LENGTH="$(yq r "${CONFIG_FILE}" "config[acme.sh].keylength")"
+    KEY_TYPE=""
+    KEY_TYPE_FOLDER=""
+  else
+    KEY_LENGTH="$(yq r "${CONFIG_FILE}" "config[acme.sh].keylength-ec")"
+    KEY_TYPE_FOLDER="_ecc"
+  fi
+
+  IS_STAGING_CA="$(yq r "${CONFIG_FILE}" "config[acme.sh].staging")"
+  if [[ "${IS_STAGING_CA}" == "true" ]]; then
+    ACME_CA="--test"
+  fi
   DNS_CHALLENGE="$(yq r "${CONFIG_FILE}" "config[acme.sh].default_dns_challenge")"
+
   #FORCE="$(yq r "${CONFIG_FILE}" "config[acme.sh].force")"
   echo_info "DNS challenge: '${DNS_CHALLENGE}'"
 
@@ -52,7 +69,7 @@ function generate_certificate() {
   done
 
   if ! nc -z localhost 80 &>/dev/null; then
-    # No traefik
+    # No nginx
     DOCKER_PARAMS="$(cat <<EOF
 --rm -it --net=host \
   -v ${ACME_DIR}:/acme.sh \
@@ -60,51 +77,41 @@ function generate_certificate() {
 EOF
     )"
   else
-    # Look for traefik container's network
-    TRAEFIK_NETWORK="$(get_container_network_or_die "80")"
-    # Traefik
-    DOCKER_PARAMS="$(cat <<EOF
---rm -it --net=${TRAEFIK_NETWORK} \
-  -v ${ACME_DIR}:/acme.sh \
-  -v ${CERTS_DIR}:/certs  \
-  -l traefik.enable=true \
-  -l traefik.docker.network=${TRAEFIK_NETWORK} \
-  -l traefik.http.routers.le.entrypoints=web,websecure \
-  -l traefik.http.routers.le.rule=PathPrefix(\`/.well-known/acme-challenge/\`) \
-  -l traefik.http.routers.le.priority=10 \
-  -l traefik.http.routers.le.service=le \
-  -l traefik.http.services.le.loadbalancer.server.port=80
-EOF
-    )"
+    echo_error "Port 80 in use, stop nginx"
+    exit 1
   fi
 
-  SH_PARAMS=$(cat <<EOF
-acme.sh --cert-home /certs --issue --test --standalone ${LIST_DOMAINS[@]} ${DNS_CHALLENGE}
+  SH_PARAMS="$(cat <<EOF
+acme.sh --cert-home /certs --issue ${ACME_CA} --keylength ${KEY_LENGTH} --accountkeylength 4096 --standalone ${LIST_DOMAINS[@]} ${DNS_CHALLENGE}
 EOF
-    )
+    )"
 
   if ! docker run ${DOCKER_PARAMS} neilpang/acme.sh:latest sh -c "${SH_PARAMS}"; then
     echo "Run it again"
     exit 1
   else
     echo_ok "Certificate created successfully"
-    ln -s -f "${MAIN_DOMAIN_NO_STAR}/fullchain.cer" "${CERTS_DIR}/fullchain.cer"
-    ln -s -f "${MAIN_DOMAIN_NO_STAR}/${MAIN_DOMAIN_NO_STAR}.key" "${CERTS_DIR}/server.key"
+    ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/fullchain.cer" "${CERTS_DIR}/${KEY_TYPE}fullchain.cer"
+    ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/${MAIN_DOMAIN_NO_STAR}.key" "${CERTS_DIR}/${KEY_TYPE}server.key"
   fi
 }
 
 function check_certificate() {
-  local CERTS_DIR
-  local -a ALL_DOMAINS
+  local CERTS_DIR="${1}"
+  shift
+  local KEY_TYPE="${1}"
+  shift
+  local -a ALL_DOMAINS=( ${@} )
+
   local CERT_FILE SAN SHOULD_GENERATE_CERTIFICATE
   local -i EXPIRE_DAYS=15 FOUND_ALL
   local -i EXPIRE_DAYS_IN_SEC=$(( 3600*24*EXPIRE_DAYS ))
 
-  CERTS_DIR="${1}"
-  shift
-  ALL_DOMAINS=( ${@} )
+  if [[ "${KEY_TYPE}" == "-" ]]; then
+    KEY_TYPE=""
+  fi
 
-  CERT_FILE="${CERTS_DIR}/fullchain.cer"
+  CERT_FILE="${CERTS_DIR}/${KEY_TYPE}fullchain.cer"
 
   SHOULD_GENERATE_CERTIFICATE='false'
   if [[ -f "${CERT_FILE}" ]]; then
@@ -161,6 +168,7 @@ function configure_certificates() {
   DATA_DIR="${2}"
 
   CERTS_DIR="${DATA_DIR}/certs"
+  CERTS_EC_DIR="${DATA_DIR}/certs-ec"
 
   MAIN_DOMAIN="$(extract_main "${CONFIG_FILE}")"
   MAIN_DOMAIN_NO_STAR="$(strip_star "${MAIN_DOMAIN}")"
@@ -172,11 +180,14 @@ function configure_certificates() {
   echo_info "Main domain (no star): '${MAIN_DOMAIN_NO_STAR}'"
   echo_info "All domains: '${ALL_DOMAINS[*]}'"
 
-  if ! check_certificate "${CERTS_DIR}" "${ALL_DOMAINS[@]}"; then
-    echo_info "Not all domains found → Requesting new certificate"
-    generate_certificate "${CONFIG_FILE}" "${DATA_DIR}" "${MAIN_DOMAIN_NO_STAR}" "${ALL_DOMAINS[@]}"
-  else
-    echo_ok_verbose "Certificate contains all domains"
-  fi
+  for KEY_TYPE in "-" "ecc_"; do
+    if ! check_certificate "${CERTS_DIR}" "${KEY_TYPE}" "${ALL_DOMAINS[@]}"; then
+      echo_info "Not all domains found → Requesting new certificate"
+      generate_certificate "${CONFIG_FILE}" "${DATA_DIR}" "${KEY_TYPE}" "${MAIN_DOMAIN_NO_STAR}" "${ALL_DOMAINS[@]}"
+  #  else
+  #    echo_ok_verbose "Certificate contains all domains"
+    fi
+  done
+
   echo_ok_verbose "Certificates check completed successfully"
 }
