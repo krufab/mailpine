@@ -1,6 +1,6 @@
 # Mailpine - (alpha version)
 
-Alpine based mail server
+A+ Alpine based mail server
 
 Components:
 - postfix
@@ -13,7 +13,7 @@ Components:
 - nginx
 - mariadb
 - phpmyadmin
-- traefik
+- <del>traefik</del>
 
 ## Instructions
 
@@ -40,14 +40,14 @@ vi config.yml
 - Checks and creates opendkim keys
 - Checks and suggests TXT field for opendmarc 
 - Checks and suggests TXT field for spf 
-- Configures traefik
+- <del>Configures traefik</del>
 - Configures mariadb
 - Configures postfix, dovecot, opendkim, opendmarc, unbound
 - Configures nginx, postfixadmin, roundcubemail, phpmyadmin
 
 ### Run steps
 
-- Starts traefik
+- <del>Starts traefik</del>
 - Starts mariadb
 - Starts postfix, dovecot, opendkim, opendmarc, unbound
 - Starts nginx, postfixadmin, roundcubemail, phpmyadmin
@@ -57,4 +57,4 @@ vi config.yml
 - Stops nginx, postfixadmin, roundcubemail, phpmyadmin
 - Stops postfix, dovecot, opendkim, opendmarc, unbound
 - Stops mariadb
-- Stops traefik
+- <del>Stops traefik</del>
