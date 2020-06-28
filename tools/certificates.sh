@@ -68,21 +68,26 @@ function generate_certificate() {
     LIST_DOMAINS+=("-d ${DOMAIN}")
   done
 
+  declare ACME_SH_NETWORK
+
   if ! nc -z localhost 80 &>/dev/null; then
     # No nginx
-    DOCKER_PARAMS="$(cat <<EOF
---rm -it --net=host \
+    ACME_SH_NETWORK="host"
+  else
+    echo_error "Port 80 in use, using nginx"
+    # Look for nginx container's network
+    ACME_SH_NETWORK="$(get_container_network_or_die "80")"
+  fi
+
+  DOCKER_PARAMS="$(cat <<EOF
+--rm --name mp_acme_sh --net=${ACME_SH_NETWORK} \
   -v ${ACME_DIR}:/acme.sh \
   -v ${CERTS_DIR}:/certs
 EOF
-    )"
-  else
-    echo_error "Port 80 in use, stop nginx"
-    exit 1
-  fi
+  )"
 
   SH_PARAMS="$(cat <<EOF
-acme.sh --cert-home /certs --issue ${ACME_CA} --keylength ${KEY_LENGTH} --accountkeylength 4096 --standalone ${LIST_DOMAINS[@]} ${DNS_CHALLENGE}
+acme.sh --cert-home /certs --issue ${ACME_CA} --ecc --ocsp-must-staple --keylength ${KEY_LENGTH} --accountkeylength 4096 --standalone ${LIST_DOMAINS[@]} ${DNS_CHALLENGE}
 EOF
     )"
 

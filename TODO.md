@@ -10,3 +10,4 @@
 - Tests
 - Antivirus
 - CAA RR validation
+- Help

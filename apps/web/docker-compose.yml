@@ -6,6 +6,8 @@ services:
     image: "nginx:1.19-alpine"
     env_file:
       - .env
+    networks:
+      - web
     ports: ["80:80", "443:443"]
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
@@ -69,6 +71,8 @@ networks:
   mail:
     external:
       name: mp_mail_mail
+  web:
+    driver: bridge
 
 volumes:
   mail-root:

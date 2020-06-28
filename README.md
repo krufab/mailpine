@@ -1,8 +1,19 @@
 # Mailpine - (alpha version)
 
-A+ Alpine based mail server
+Pre-configured A+ Alpine based mail server with web frontend for user managements.
+Uses Let's Encrypt certificates.
 
-Components:
+## Security
+
+- A+ in with 100% score with ssl labs and testssl.sh
+- Let's Encrypt certificates
+- TLS 1.2
+- DH 4096
+- ECDH 384
+- OCSP Stapling
+- HTTP Strict Transport Security (HSTS)
+
+## Components:
 - postfix
 - dovecot
 - opendkim
@@ -58,3 +69,11 @@ vi config.yml
 - Stops postfix, dovecot, opendkim, opendmarc, unbound
 - Stops mariadb
 - <del>Stops traefik</del>
+
+### Useful links
+- https://ssl-config.mozilla.org/
+- https://www.digitalocean.com/community/tools/nginx
+- https://community.letsencrypt.org/t/howto-a-with-all-100-s-on-ssl-labs-test-using-nginx-mainline-stable/55033
+- https://www.ssllabs.com/ssltest/analyze.html
+- https://github.com/ssllabs/research/wiki/SSL-Server-Rating-Guide
+- https://stackoverflow.com/questions/41930060/how-do-you-score-a-with-100-on-all-categories-on-ssl-labs-test-with-lets-encry
