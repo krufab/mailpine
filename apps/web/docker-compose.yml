@@ -3,23 +3,15 @@ version: "3.7"
 services:
 
   nginx:
-    image: "nginx:1.17-alpine"
+    image: "nginx:1.19-alpine"
     env_file:
       - .env
-    expose:
-      - 443
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.tcp.routers.nginx.entrypoints=websecure"
-      - "traefik.tcp.routers.nginx.rule=HostSNI(${MP_NGINX_HOST_SNI})"
-      - "traefik.tcp.routers.nginx.service=nginx@docker"
-      - "traefik.tcp.routers.nginx.tls.passthrough=true"
-      - "traefik.tcp.services.nginx.loadbalancer.server.port=443"
     networks:
-      - traefik
+      - web
+    ports: ["80:80", "443:443"]
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_DATA_DIR}/nginx:/data/nginx:ro"
       - ./nginx/rootfs/etc/nginx/nginxconfig.io:/etc/nginx/nginxconfig.io
       - ./nginx/rootfs/etc/nginx/sites-available:/etc/nginx/sites-available
       - ./nginx/rootfs/etc/nginx/sites-enabled:/etc/nginx/sites-enabled
@@ -40,7 +32,7 @@ services:
       - database
       - mail
     volumes:
-      - "${MP_DATA_DIR}/roundcube/logs/:/var/www/html/logs/"
+      - "${MP_DATA_DIR}/roundcubemail/logs/:/var/www/html/logs/"
       - ./roundcubemail/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
       - ./roundcubemail/config.inc.php:/var/www/html/config/config.inc.php
       - mail-root:/var/www/html
@@ -79,9 +71,8 @@ networks:
   mail:
     external:
       name: mp_mail_mail
-  traefik:
-    external:
-      name: mp_traefik_traefik
+  web:
+    driver: bridge
 
 volumes:
   mail-root:

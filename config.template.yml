@@ -1,18 +1,26 @@
-version: '1'
+version: '1.1'
 
 config:
   acme.sh:
     account_email:
+    debug: false
     default_dns_challenge:
     dns_renew:
+    enabled: true
     force: false
+    keylength: 4096
+    keylength-ec: ec-384
     staging: false
   data-dir: './data'
+  docker:
+    prefix: mp_
+  logs-dir: './logs'
   timezone: "Europe/Luxembourg"
+  verbosity_level: 1
 
 domains:
   - domain: 'example.com'
-    mail: 'mail'
+    imap: 'imap'
     smtp: 'smtp'
   - domain: 'example.org'
   - domain: 'example.net'
@@ -20,18 +28,26 @@ domains:
 services:
   database:
     internal: true
-  traefik:
-    dashboard:
+  mail:
+    opendkim:
+      debug: true
       enabled: true
-      host: traefik
-    enabled: true
+    opendmarc:
+      debug: true
+      enabled: true
+    spf:
+      debug: true
+      enabled: true
   web_services:
-    - name: phpmyadmin
-      enabled: false
+    phpmyadmin:
+      debug: true
+      enabled: true
       host: 'pma'
-    - name: postfixadmin
+    postfixadmin:
+      debug: true
       enabled: true
       host: 'pa'
-    - name: roundcube
+    roundcubemail:
+      debug: true
       enabled: true
       host: 'mail'

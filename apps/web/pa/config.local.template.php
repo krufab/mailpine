@@ -31,10 +31,11 @@ $CONF['admin_name'] = 'Postmaster';
 // This is used to send email to Postfix in order to create mailboxes.
 $CONF['smtp_server'] = getenv('POSTFIXADMIN_SMTP_SERVER');
 $CONF['smtp_port'] = getenv('POSTFIXADMIN_SMTP_PORT');
+
 // SMTP Client
 // Hostname (FQDN) of the server hosting Postfix Admin
 // Used in the HELO when sending emails from Postfix Admin
-$CONF['smtp_client'] = getenv('MP_FQDN_POSTFIXADMIN');
+$CONF['smtp_client'] = getenv('POSTFIXADMIN_SMTP_CLIENT');
 
 // Set 'YES' to use TLS when sending emails.
 $CONF['smtp_sendmail_tls'] = 'YES';

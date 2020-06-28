@@ -68,11 +68,21 @@ function extract_domains_list() {
   echo "${DOMAINS[@]}"
 }
 
+function web_services_list() {
+  local WEB_SERVICES=(
+    phpmyadmin
+    postfixadmin
+    roundcubemail
+  )
+
+  echo "${WEB_SERVICES[@]}"
+}
+
 function extract_web_services {
   local CONFIG_FILE MAIN_DOMAIN
-  local ENABLED WEB_SERVICE_JSON HOST
+  local ENABLED HOST
   local -a DOMAINS=()
-  local -a WEB_SERVICES_JSON
+  local -a WEB_SERVICES_LIST
 
   CONFIG_FILE="${1}"
   MAIN_DOMAIN="${2}"
@@ -82,12 +92,12 @@ function extract_web_services {
     return
   fi
 
-  readarray -t WEB_SERVICES_JSON < <(yq r -j "${CONFIG_FILE}" | jq -r -c '.services.web_services[]')
+  WEB_SERVICES_LIST=( $(web_services_list) )
 
-  for WEB_SERVICE_JSON in "${WEB_SERVICES_JSON[@]}"; do
-    ENABLED="$(echo -n "${WEB_SERVICE_JSON}" | jq -r -c '.enabled')"
+  for WEB_SERVICE in "${WEB_SERVICES_LIST[@]}"; do
+    ENABLED="$(yq r "${CONFIG_FILE}" "services.web_services.${WEB_SERVICE}.enabled")"
     if [[ "${ENABLED}" = "true" ]]; then
-      HOST="$(echo -n "${WEB_SERVICE_JSON}" | jq -r -c '.host')"
+      HOST="$(yq r "${CONFIG_FILE}" "services.web_services.${WEB_SERVICE}.host")"
       DOMAINS+=("${HOST}.${MAIN_DOMAIN}")
     fi
   done

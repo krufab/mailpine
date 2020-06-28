@@ -5,7 +5,8 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function manage_opendmarc() {
+function configure_opendmarc() {
+  echo_ok "Checking opendmrc settings"
   local CONFIG_FILE
   local -a DOMAINS
   local -i RESULT
@@ -23,10 +24,11 @@ function manage_opendmarc() {
       bash -ce " \
         opendmarc-check "${DOMAIN}" > /dev/null 2>&1
       "; then
-        echo_ok "DMARC record for ${DOMAIN} is correct"
+        echo_ok_verbose "DMARC record for ${DOMAIN} is correct"
       else
         echo_error "Missing or incorrect DMARC record for: ${DOMAIN}"
         echo_info "Set TXT record for ${DOMAIN}: '_dmarc. IN TXT \"v=DMARC1; p=quarantine; pct=20; adkim=s; aspf=r; fo=1; rua=mailto:postmaster@${DOMAIN}; ruf=mailto:forensic@${DOMAIN};\""
       fi
   done
+  echo_ok_verbose "Checking opendmrc settings completed successfully"
 }

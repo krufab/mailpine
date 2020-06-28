@@ -15,8 +15,7 @@ function get_MP_DOMAIN() {
 
 function get_HOST_x() {
   local CONFIG_FILE NAME
-  local HOST WEB_SERVICE_JSON
-  local -a WEB_SERVICES_JSON
+  local HOST
 
   CONFIG_FILE="${1}"
   NAME="${2}"
@@ -26,16 +25,7 @@ function get_HOST_x() {
       HOST="$(yq r "${CONFIG_FILE}" "domains[0].${NAME}")"
       ;;
     phpmyadmin | postfixadmin | roundcube)
-      readarray -t WEB_SERVICES_JSON < <(yq r -j "${CONFIG_FILE}" | jq -r -c '.services.web_services[]')
-
-      for WEB_SERVICE_JSON in "${WEB_SERVICES_JSON[@]}"; do
-        if [[ "${NAME}" = "$(echo -n "${WEB_SERVICE_JSON}" | jq -r -c '.name')" ]]; then
-          HOST="$(echo -n "${WEB_SERVICE_JSON}" | jq -r -c '.host')"
-        fi
-      done
-      ;;
-    traefik)
-      HOST="$(yq r "${CONFIG_FILE}" "services.traefik.dashboard.host")"
+      HOST="$(yq r "${CONFIG_FILE}" "services.web_services.${NAME}.host")"
       ;;
     *)
       echo_error "Invalid host: ${NAME}"
@@ -71,6 +61,7 @@ function get_MP_D_PREFIX() {
   yq r "${CONFIG_FILE}" 'config.docker.prefix'
 }
 
+# Get Mailpine Docker profile name
 function get_MP_D_PROFILE_x() {
   local CONFIG_FILE NAME
 

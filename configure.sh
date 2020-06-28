@@ -32,77 +32,144 @@ if ! sed --help | grep -q -- '--follow-symlinks'; then
   exit 1
 fi
 
-declare THIS_PATH
-declare CONFIG_FILE
-declare APPS_DIR
-declare DATA_DIR
-declare -a DATA_SUBDIRS
+#trap 'trap_exit ${?} ${LINENO}' ERR
+#trap 'trap_exit ${?} ${LINENO} ${BASH_LINENO} ${FUNCNAME[*]} ${BASH_SOURCE[*]}' EXIT
 
+function trap_exit() {
+  if [[ "$1" != "0" ]]; then
+    echo "Error   : ${1} at ${2} $@"
+    echo "Function: ${FUNCNAME[1]}"
+    echo "File    : ${BASH_SOURCE[1]}"
+    echo "Line    : ${LINENO}"
+    echo "Caller  : ${BASH_LINENO[1]}"
+    exit 1
+  fi
+}
+
+function trap_error() {
+  if [[ "$1" != "0" ]]; then
+    echo "Error   : ${1} at ${2} $@"
+    echo "Function: ${4}"
+    echo "File    : ${5}"
+    echo "Line    : ${2}"
+    echo "Caller  : ${3}"
+    exit 1
+  fi
+}
+
+declare MIN_CONFIG_VERSION="1.1"
+
+declare THIS_PATH
 THIS_PATH="$(dirname "$(readlink --canonicalize "${0}")")"
 
 # shellcheck source=./tools/commons.sh
 source "${THIS_PATH}/tools/commons.sh"
 # shellcheck source=./tools/domains.sh
 source "${THIS_PATH}/tools/domains.sh"
-# shellcheck source=./tools/certificates.sh
-source "${THIS_PATH}/tools/certificates.sh"
-# shellcheck source=./tools/opendkim.sh
-source "${THIS_PATH}/tools/opendkim.sh"
-# shellcheck source=./tools/apps_mail.sh
-source "${THIS_PATH}/tools/apps_mail.sh"
-# shellcheck source=./tools/apps_mariadb.sh
-source "${THIS_PATH}/tools/apps_mariadb.sh"
-# shellcheck source=./tools/apps_traefik.sh
-source "${THIS_PATH}/tools/apps_traefik.sh"
-# shellcheck source=./tools/apps_web_services.sh
-source "${THIS_PATH}/tools/apps_web_services.sh"
-# shellcheck source=./tools/spf.sh
-source "${THIS_PATH}/tools/spf.sh"
-# shellcheck source=./tools/opendmarc.sh
-source "${THIS_PATH}/tools/opendmarc.sh"
 # shellcheck source=./tools/names.sh
 source "${THIS_PATH}/tools/names.sh"
-# shellcheck source=./tools/docker.sh
-source "${THIS_PATH}/tools/docker.sh"
+# shellcheck source=./tools/prepare_folders.sh
+source "${THIS_PATH}/tools/prepare_folders.sh"
 
-CONFIG_FILE="${THIS_PATH}/config.yml"
+declare CONFIG_FILE="${THIS_PATH}/config.yml"
 
-APPS_DIR="${THIS_PATH}/apps"
+declare VERBOSE="${VERBOSE:-$(get_verbose_value "${CONFIG_FILE}")}"
+
+check_config_version "${CONFIG_FILE}" "${MIN_CONFIG_VERSION}"
+
+declare APPS_DIR="${THIS_PATH}/apps"
+declare DATA_DIR
 DATA_DIR="$(realpath "$(yq r "${CONFIG_FILE}" 'config.data-dir')")"
-DATA_SUBDIRS=(
-'acme.sh'
-'certs'
-'letsencrypt'
-'mail'
-'mail/postfix'
-'opendkim'
-'opendmarc'
-'unbound'
-)
+declare LOGS_DIR
+LOGS_DIR="$(realpath "$(yq r "${CONFIG_FILE}" 'config.logs-dir')")"
 
-check_or_create_dir_or_exit "${DATA_DIR}"
-for SUBDIR in "${DATA_SUBDIRS[@]}"; do
-  check_or_create_dir_or_exit "${DATA_DIR}/${SUBDIR}"
+declare MP_P_ALL="true"
+declare MP_P_SEL="-"
+declare MP_RUN MP_RESTART
+declare MP_PARAMS
+
+while [[ ${#} -gt 0 ]]; do
+  case "${1}" in
+  -d|--debug)
+    shift 1
+    ;;
+  -R|--restart)
+    MP_RESTART="true"
+    MP_PARAMS+=" --restart"
+    shift 1
+    ;;
+  -r|--run)
+    MP_RUN="true"
+    shift 1
+    ;;
+  -s|--service)
+    MP_P_ALL="-"
+    MP_P_SEL+="${2}"
+    MP_PARAMS+=" --service ${2}"
+    shift 2
+    ;;
+  -v|--verbose)
+    shift 1
+    ;;
+  *)
+    echo "Invalid option: '${1}'"
+    exit 1
+    ;;
+  esac
 done
 
-check_mailpine_tools
-echo_ok "Docker image available"
+prepare_folders "${DATA_DIR}" "${LOGS_DIR}"
 
-manage_certificates "${CONFIG_FILE}" "${DATA_DIR}"
-echo_ok "Certificate check completed successfully"
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mailpine"; then
+  # shellcheck source=./tools/docker.sh
+  source "${THIS_PATH}/tools/docker.sh"
+  check_mailpine_tools
+fi
 
-manage_opendkim "${CONFIG_FILE}" "${DATA_DIR}/opendkim"
-echo_ok "Opendkim check completed successfully"
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "certificates"; then
+  # shellcheck source=./tools/certificates.sh
+  source "${THIS_PATH}/tools/certificates.sh"
+  configure_certificates "${CONFIG_FILE}" "${DATA_DIR}"
+fi
 
-manage_opendmarc "${CONFIG_FILE}"
-echo_ok "Opendmarc check completed successfully"
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "opendkim"; then
+  # shellcheck source=./tools/mail/opendkim.sh
+  source "${THIS_PATH}/tools/mail/opendkim.sh"
+  configure_opendkim "${CONFIG_FILE}" "${DATA_DIR}/opendkim"
+fi
 
-manage_spf "${CONFIG_FILE}"
-echo_ok "SPF check completed successfully"
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "opendmarc"; then
+  # shellcheck source=./tools/mail/opendmarc.sh
+  source "${THIS_PATH}/tools/mail/opendmarc.sh"
+  configure_opendmarc "${CONFIG_FILE}"
+fi
 
-process_traefik "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
-process_mariadb "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
-process_mail "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
-process_web_services "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "spf"; then
+  # shellcheck source=./tools/mail/spf.sh
+  source "${THIS_PATH}/tools/mail/spf.sh"
+  configure_spf "${CONFIG_FILE}"
+fi
+
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
+  # shellcheck source=./tools/mariadb/apps_mariadb.sh
+  source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"
+  configure_mariadb "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
+fi
+
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mail"; then
+  # shellcheck source=./tools/mail/apps_mail.sh
+  source "${THIS_PATH}/tools/mail/apps_mail.sh"
+  configure_mail "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
+fi
+
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "web"; then
+  # shellcheck source=./tools/web/apps_web_services.sh
+  source "${THIS_PATH}/tools/web/apps_web_services.sh"
+  configure_web_services "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
+fi
 
 echo_ok "Configuration completed successfully"
+
+if [[ "${MP_RUN:-}" == "true" ]] || [[ "${MP_RESTART:-}" == "true" ]]; then
+  ./run.sh ${MP_PARAMS}
+fi

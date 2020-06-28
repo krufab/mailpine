@@ -9,7 +9,7 @@ echo "Receiving anchor key..."
 set +e
 /usr/sbin/unbound-anchor -v -a /data/unbound/root.key
 set -e
-#cat /data/unbound/root.key
+cat /data/unbound/root.key
 
 # Get a copy of the latest root DNS servers list
 echo "Receiving root hints..."
