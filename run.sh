@@ -32,6 +32,8 @@ APPS_DIR="${THIS_PATH}/apps"
 source "${THIS_PATH}/tools/commons.sh"
 # shellcheck source=./tools/names.sh
 source "${THIS_PATH}/tools/names.sh"
+# shellcheck source=./tools/help.sh
+source "${THIS_PATH}/tools/help.sh"
 
 function run_mariadb() {
   local CONFIG_FILE="${1}"
@@ -129,6 +131,14 @@ declare MP_PARAMS
 
 while [[ ${#} -gt 0 ]]; do
   case "${1}" in
+  -h|--help)
+    print_run_help
+    exit 0
+    ;;
+  -l|--list)
+    print_run_services
+    exit 0
+    ;;
   -R|--restart)
     MP_DOCKER_COMMAND="restart"
     shift 1
