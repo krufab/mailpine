@@ -68,6 +68,8 @@ source "${THIS_PATH}/tools/commons.sh"
 source "${THIS_PATH}/tools/domains.sh"
 # shellcheck source=./tools/names.sh
 source "${THIS_PATH}/tools/names.sh"
+# shellcheck source=./tools/help.sh
+source "${THIS_PATH}/tools/help.sh"
 # shellcheck source=./tools/prepare_folders.sh
 source "${THIS_PATH}/tools/prepare_folders.sh"
 
@@ -92,6 +94,14 @@ while [[ ${#} -gt 0 ]]; do
   case "${1}" in
   -d|--debug)
     shift 1
+    ;;
+  -h|--help)
+    print_configuration_help
+    exit 0
+    ;;
+  -l|--list)
+    print_configuration_services
+    exit 0
     ;;
   -R|--restart)
     MP_RESTART="true"

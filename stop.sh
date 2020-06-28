@@ -15,12 +15,22 @@ CONFIG_FILE="${THIS_PATH}/config.yml"
 source "${THIS_PATH}/tools/commons.sh"
 # shellcheck source=./tools/names.sh
 source "${THIS_PATH}/tools/names.sh"
+# shellcheck source=./tools/help.sh
+source "${THIS_PATH}/tools/help.sh"
 
 declare MP_P_ALL="true"
 declare MP_P_SEL="-"
 
 while [[ ${#} -gt 0 ]]; do
   case "${1}" in
+  -h|--help)
+    print_stop_help
+    exit 0
+    ;;
+  -l|--list)
+    print_stop_services
+    exit 0
+    ;;
   -s|--service)
     MP_P_ALL="-"
     MP_P_SEL+="${2}"

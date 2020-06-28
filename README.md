@@ -26,7 +26,7 @@ Uses Let's Encrypt certificates.
 - phpmyadmin
 - <del>traefik</del>
 
-## Instructions
+## Quickstart
 
 ```bash
 cp config.template.yml config.yml
@@ -47,6 +47,23 @@ vi config.yml
 
 ### Configuration steps
 
+```bash
+./configure.sh [options]
+./configure.sh --help
+
+Mailpine - configuration
+Usage: ./configure.sh [options]
+
+ -d --debug   Set services in debug mode
+ -h --help    This help
+ -l --list    Show the list of available services
+ -r --run     Run services after configuration
+ -R --restart Restart services after configuration
+ -s --service [service] Configure / run / restart the specific service
+                Can be used multiple times
+ -v --verbose Print out a verbose output of this script
+```
+
 - Uses acme.sh to request SSL certificates
 - Checks and creates opendkim keys
 - Checks and suggests TXT field for opendmarc 
@@ -58,12 +75,39 @@ vi config.yml
 
 ### Run steps
 
+```bash
+./run.sh [options]
+./run.sh --help
+
+Mailpine - run
+Usage: ./run.sh [options]
+
+ -h --help    This help
+ -l --list    Show the list of available services
+ -R --restart Restart services after configuration
+ -s --service [service] Configure / run / restart the specific service
+                Can be used multiple times
+```
+
 - <del>Starts traefik</del>
 - Starts mariadb
 - Starts postfix, dovecot, opendkim, opendmarc, unbound
 - Starts nginx, postfixadmin, roundcubemail, phpmyadmin
 
 ### Stop steps
+
+```bash
+./stop.sh [options]
+./stop.sh --help
+
+Mailpine - stop
+Usage: ./stop.sh [options]
+
+ -h --help    This help
+ -l --list    Show the list of available services
+ -s --service [service] Configure / run / restart the specific service
+                Can be used multiple times
+```
 
 - Stops nginx, postfixadmin, roundcubemail, phpmyadmin
 - Stops postfix, dovecot, opendkim, opendmarc, unbound
