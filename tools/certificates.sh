@@ -99,6 +99,10 @@ EOF
     ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/fullchain.cer" "${CERTS_DIR}/${KEY_TYPE}fullchain.cer"
     ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/${MAIN_DOMAIN_NO_STAR}.key" "${CERTS_DIR}/${KEY_TYPE}server.key"
   fi
+
+  if [[ ! -f "${CERTS_DIR}/ca.cer" ]]; then
+    ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/ca.cer" "${CERTS_DIR}/ca.cer"
+  fi
 }
 
 function check_certificate() {
