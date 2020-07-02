@@ -11,3 +11,4 @@
 - Antivirus
 - CAA RR validation
 - Help
+- Enable brotli

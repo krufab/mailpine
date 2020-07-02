@@ -1,3 +1,11 @@
+2020-07-01:
+- Improved nginx configuration (#5).
+  - Cleaned nginx .conf files
+  - Added endpoint for letsencrypt
+  - Added secure headers for postfixadmin & phpmyadmin
+  - Added (almost) secure headers to roundcubemail
+- configure.sh creates a link to the ca.cer file to be used for OCSP stapling
+
 2020-06-28:
 - OCSP stapling
 - HSTS support
