@@ -11,7 +11,6 @@ services:
     ports: ["80:80", "443:443"]
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
-      - "${MP_DATA_DIR}/nginx:/data/nginx:ro"
       - ./nginx/rootfs/etc/nginx/nginxconfig.io:/etc/nginx/nginxconfig.io
       - ./nginx/rootfs/etc/nginx/sites-available:/etc/nginx/sites-available
       - ./nginx/rootfs/etc/nginx/sites-enabled:/etc/nginx/sites-enabled
