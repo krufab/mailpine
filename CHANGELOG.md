@@ -1,3 +1,11 @@
+2020-07-10:
+- Removed OSCP must staple optin from certificate requests as not supported by dovecot nor postfix (#10)
+  - Check: https://serverfault.com/queùstions/830434/do-postfix-and-dovecot-support-ocsp-stapling/878378
+- Set port 993 as default mail port
+- Changed sql init file to be a template (#8)
+- Removed gzip support from nginx due to result from testssl
+  - BREACH (CVE-2013-3587) potentially NOT ok, "gzip" HTTP compression detected
+
 2020-07-01:
 - Improved nginx configuration (#5).
   - Cleaned nginx .conf files

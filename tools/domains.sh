@@ -22,7 +22,7 @@ function extract_main_mail {
   MAIN="$(strip_star "$(extract_main "${CONFIG_FILE}")")"
   MAIL="$(yq r -j "${CONFIG_FILE}" | jq -r -c '.domains[0].mail | select (.!=null)')"
 
-  echo "${MAIL:-mail}.${MAIN}"
+  echo "${MAIL:-imap}.${MAIN}"
 }
 
 function strip_star {
@@ -55,7 +55,7 @@ function extract_domains_list() {
       if [[ -n "${MAIL}" ]]; then
         DOMAINS+=("${MAIL}.${DOMAIN}")
       else
-        DOMAINS+=("mail.${DOMAIN}")
+        DOMAINS+=("imap.${DOMAIN}")
       fi
       SMTP="$(echo -n "${DOMAIN_JSON}" | jq -r -c '.smtp | select (.!=null)')"
       if [[ -n "${SMTP}" ]]; then

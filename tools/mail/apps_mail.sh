@@ -29,7 +29,7 @@ function configure_mail() {
     MP_DATABASE_HOST="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "mariadb" "mariadb")"
     MP_DATABASE_PASSWORD="$(grep 'MP_PASSWORD_POSTFIX=' "${APPS_DIR}/mariadb/.env")"
     MP_DOMAIN="$(get_MP_DOMAIN "${CONFIG_FILE}")"
-    MP_FQDN_MAIL="$(get_MP_FQDN_x "${CONFIG_FILE}" "mail")"
+    MP_FQDN_MAIL="$(get_MP_FQDN_x "${CONFIG_FILE}" "smtp")"
 
     sed -i \
       -e "s|^MP_DATABASE_HOST=.*$|MP_DATABASE_HOST=${MP_DATABASE_HOST}|g" \
