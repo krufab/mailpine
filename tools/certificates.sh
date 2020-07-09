@@ -54,7 +54,12 @@ function generate_certificate() {
   fi
   DNS_CHALLENGE="$(yq r "${CONFIG_FILE}" "config[acme.sh].default_dns_challenge")"
 
-  #FORCE="$(yq r "${CONFIG_FILE}" "config[acme.sh].force")"
+  FORCE="$(yq r "${CONFIG_FILE}" "config[acme.sh].force")"
+  if [[ ${FORCE} == "true" ]]; then
+    FORCE="--force"
+  else
+    FORCE=""
+  fi
   echo_info "DNS challenge: '${DNS_CHALLENGE}'"
 
   if [[ "${DNS_CHALLENGE}" = "" ]] && grep -q -F -e '*' <<< " ${ALL_DOMAINS[*]} "; then
@@ -72,9 +77,10 @@ function generate_certificate() {
 
   if ! nc -z localhost 80 &>/dev/null; then
     # No nginx
+    echo_info_verbose "Port 80 free"
     ACME_SH_NETWORK="host"
   else
-    echo_error "Port 80 in use, using nginx"
+    echo_info_verbose "Port 80 in use, using nginx"
     # Look for nginx container's network
     ACME_SH_NETWORK="$(get_container_network_or_die "80")"
   fi
@@ -87,9 +93,11 @@ EOF
   )"
 
   SH_PARAMS="$(cat <<EOF
-acme.sh --cert-home /certs --issue ${ACME_CA} --ecc --ocsp-must-staple --keylength ${KEY_LENGTH} --accountkeylength 4096 --standalone ${LIST_DOMAINS[@]} ${DNS_CHALLENGE}
+acme.sh --cert-home /certs --issue ${ACME_CA} --ecc --keylength ${KEY_LENGTH} --accountkeylength 4096 --standalone ${LIST_DOMAINS[@]} ${DNS_CHALLENGE} ${FORCE}
 EOF
     )"
+
+    #--ocsp-must-staple
 
   if ! docker run ${DOCKER_PARAMS} neilpang/acme.sh:latest sh -c "${SH_PARAMS}"; then
     echo "Run it again"
@@ -121,6 +129,7 @@ function check_certificate() {
   fi
 
   CERT_FILE="${CERTS_DIR}/${KEY_TYPE}fullchain.cer"
+  echo_ok_verbose "Certificate: ${CERT_FILE}"
 
   SHOULD_GENERATE_CERTIFICATE='false'
   if [[ -f "${CERT_FILE}" ]]; then
@@ -130,7 +139,7 @@ function check_certificate() {
       SAN="$(docker run --rm -v \
         "${CERTS_DIR}:/tmp" mailpine-tools:latest bash -ce "
           openssl x509 -noout -ext subjectAltName \
-            -in "/tmp/fullchain.cer" \
+            -in "/tmp/${KEY_TYPE}fullchain.cer" \
           | grep "DNS:" | sed -E -e 's/^\s+|DNS:|,|\s+$//g'
       ")"
 

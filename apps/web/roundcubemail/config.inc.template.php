@@ -136,7 +136,7 @@ $config['default_port'] = getenv('ROUNDCUBEMAIL_DEFAULT_PORT');
 // IMAP authentication method (DIGEST-MD5, CRAM-MD5, LOGIN, PLAIN or null).
 // Use 'IMAP' to authenticate with IMAP LOGIN command.
 // By default the most secure method (from supported) will be selected.
-$config['imap_auth_type'] = null;
+$config['imap_auth_type'] = 'PLAIN';
 
 // IMAP socket context options
 // See http://php.net/manual/en/context.ssl.php
@@ -516,7 +516,7 @@ $config['ip_check'] = false;
 // X-Frame-Options HTTP header value sent to prevent from Clickjacking.
 // Possible values: sameorigin|deny|allow-from <uri>.
 // Set to false in order to disable sending the header.
-$config['x_frame_options'] = 'sameorigin';
+$config['x_frame_options'] = false;
 
 // This key is used for encrypting purposes, like storing of imap password
 // in the session. For historical reasons it's called DES_key, but it's used

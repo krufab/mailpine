@@ -4,8 +4,9 @@ config:
   acme.sh:
     account_email:
     debug: false
+#    default_dns_challenge: "--dns --yes-I-know-dns-manual-mode-enough-go-ahead-please"
     default_dns_challenge:
-    dns_renew:
+    dns_renew: true
     enabled: true
     force: false
     keylength: 4096
@@ -20,7 +21,7 @@ config:
 
 domains:
   - domain: 'example.com'
-    imap: 'imap'
+    mail: 'imap'
     smtp: 'smtp'
   - domain: 'example.org'
   - domain: 'example.net'
