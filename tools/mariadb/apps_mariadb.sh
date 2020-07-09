@@ -57,12 +57,13 @@ function configure_mariadb() {
     fi
 
     source "${APP_DIR}/.env"
-    sed -i \
+    sed \
       -e "s|@password_roundcube@|'${MP_PASSWORD_ROUNDCUBE}'|g" \
       -e "s|@password_postfix@|'${MP_PASSWORD_POSTFIX}'|g" \
       -e "s|@password_postfixadmin@|'${MP_PASSWORD_POSTFIXADMIN}'|g" \
       -e "s|@password_dovecot@|'${MP_PASSWORD_DOVECOT}'|g" \
       -e "s|@password_pma@|'${MP_PASSWORD_PMA}'|g" \
-      "${APP_DIR}/rootfs/docker-entrypoint-initdb.d/init-db.sql"
+      "${APP_DIR}/rootfs/docker-entrypoint-initdb.d/init-db.sql.template" \
+      > "${APP_DIR}/rootfs/docker-entrypoint-initdb.d/init-db.sql"
   )
 }
