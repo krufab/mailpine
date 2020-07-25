@@ -5,10 +5,13 @@
 - [ ] Debug (i.e. `configure.sh -D`)
   - [ ] Selectively debug service (i.e. `configure.sh -d opendkim`)
   - [ ] Adjust verbosity of services
-- Logs folder
+- Log folder
 - Backup folder
 - Tests
 - Antivirus
 - CAA RR validation
 - Help
 - Enable brotli
+- IPv6
+  - https://collabnix.com/enabling-ipv6-functionality-for-docker-and-docker-compose/
+- Ignore own IP in fail2ban

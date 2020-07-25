@@ -21,7 +21,9 @@ inet_protocols = all
 myhostname    = ${MP_FQDN_MAIL}
 myorigin      = ${MP_FQDN_MAIL}
 mydestination = localhost localhost.$mydomain
-mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.0.0.0/8 192.168.0.0/16
+# Removing 172.0.0.0/8
+#mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.0.0.0/8 192.168.0.0/16
+mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 ${MP_MAIL_NETWORK}
 
 alias_maps = hash:/etc/postfix/aliases
 
@@ -54,7 +56,7 @@ default_destination_recipient_limit = 10
 ## TLS PARAMETERS ##
 ####################
 
-# Smtp ( OUTGOING )
+# Smtp (OUTGOING)
 smtp_tls_loglevel            = 1
 
 # Without unbound
@@ -68,13 +70,13 @@ smtp_tls_security_level      = dane
 #smtp_dns_support_level       = dnssec
 smtp_dns_support_level       = enabled
 
-smtp_tls_CApath              = /data/certs
+smtp_tls_CApath              = /etc/ssl/certs
 smtp_tls_protocols           = !TLSv1, !SSLv2, !SSLv3
 smtp_tls_mandatory_protocols = !TLSv1, !SSLv2, !SSLv3
 smtp_tls_mandatory_ciphers   = medium
 smtp_tls_note_starttls_offer = yes
 
-# Smtpd ( INCOMING )
+# Smtpd (INCOMING)
 smtpd_tls_loglevel            = 1
 smtpd_tls_auth_only           = yes
 smtpd_tls_security_level      = may
@@ -83,10 +85,10 @@ smtpd_tls_protocols           = !TLSv1, !SSLv2, !SSLv3
 smtpd_tls_mandatory_protocols = !TLSv1, !SSLv2, !SSLv3
 smtpd_tls_mandatory_ciphers   = medium
 smtpd_tls_exclude_ciphers     = aNULL,eNULL,EXPORT,DES,3DES,RC2,RC4,MD5,PSK,SRP,DSS,AECDH,ADH,SEED
-smtpd_tls_CApath              = /data/certs
+smtpd_tls_CApath              = /etc/ssl/certs
 smtpd_tls_cert_file           = /data/certs/fullchain.cer
 smtpd_tls_key_file            = /data/certs/server.key
-smtpd_tls_dh1024_param_file   = /etc/postfix/ffdhe2048.pem
+smtpd_tls_dh1024_param_file   = /data/certs/dhparam4096.pem
 
 tls_preempt_cipherlist = yes
 tls_random_source      = dev:/dev/urandom
@@ -187,6 +189,7 @@ smtpd_sender_restrictions=
 # * permit_mynetworks : Permit the request when the client IP address matches any trusted network
 # * permit_sasl_authenticated : Permit the request when the client is successfully authenticated
 # * reject_unknown_recipient_domain : Reject when the RCPT TO domain has no DNS MX or no DNS A record or a malformed MX record
+# * reject_unknown_client_hostname : Reject the request when 1) the client IP address->name mapping fails, or 2) the name->address mapping fails, or 3) the name->address mapping does not match the client IP address.
 # * reject_non_fqdn_recipient : Reject when the RCPT TO address is not in fully-qualified domain form
 # * reject_unlisted_recipient : Reject when the RCPT TO address is not listed in the list of valid recipients for its domain
 # * reject_rbl_client : Reject connections from IP addresses blacklisted in zen.spamhaus.org
@@ -195,6 +198,7 @@ smtpd_recipient_restrictions=
     permit_mynetworks,
     permit_sasl_authenticated,
     reject_unknown_recipient_domain,
+    reject_unknown_client_hostname,
     reject_non_fqdn_recipient,
     reject_unlisted_recipient,
     reject_rbl_client zen.spamhaus.org
@@ -244,3 +248,8 @@ non_smtpd_milters = $submission_milters
 #######################
 ## YOUR CUSTOM RULES ##
 #######################
+
+# Logs -> postlog in master.cf
+# http://www.postfix.org/postconf.5.html#maillog_file_prefixes
+maillog_file_prefixes=/var, /dev/stdout, /log
+maillog_file=/log/mail/postfix.log

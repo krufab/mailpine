@@ -5,13 +5,14 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function configure_web_services() {
+function configure_web_services {
   local CONFIG_FILE APPS_DIR DATA_DIR
   local APP_DIR SERVICE_DIR
 
   CONFIG_FILE="${1}"
   APPS_DIR="${2}"
   DATA_DIR="${3}"
+  LOG_DIR="${4}"
 
   APP_DIR="${APPS_DIR}/web"
 
@@ -27,7 +28,12 @@ function configure_web_services() {
     source "${APP_DIR}/.env"
 
     set_MP_DATA_DIR_variable "${CONFIG_FILE}" "${APP_DIR}" "${DATA_DIR}"
+    set_MP_LOG_DIR_variable "${CONFIG_FILE}" "${APP_DIR}" "${LOG_DIR}"
     set_TZ_variable "${CONFIG_FILE}" "${APP_DIR}"
+
+    docker run --rm -v "${LOG_DIR}:/tmp/log" \
+      mailpine-tools:latest \
+      bash -ce "chown -R 82:82 /tmp/log/roundcubemail"
 
     MP_DOMAIN="$(get_MP_DOMAIN "${CONFIG_FILE}")"
     MP_FQDN_POSTFIXADMIN="$(get_MP_FQDN_x "${CONFIG_FILE}" "postfixadmin")"
@@ -66,43 +72,42 @@ function configure_web_services() {
 }
 
 
-function process_web_nginx() {
-  local CONFIG_FILE APPS_DIR DATA_DIR
-  local APP_DIR SERVICE_DIR
+function process_web_nginx {
+  local config_file="${1}"
+  local apps_dir="${2}"
+  local data_dir="${3}"
 
-  CONFIG_FILE="${1}"
-  APPS_DIR="${2}"
-  DATA_DIR="${3}"
+  local app_dir="${apps_dir}/web"
+  local service_dir="${app_dir}/nginx"
 
-  APP_DIR="${APPS_DIR}/web"
-  SERVICE_DIR="${APP_DIR}/nginx"
-
-  if [[ ! -f "${DATA_DIR}/nginx/dhparam.pem" ]]; then
-    openssl dhparam -out "${DATA_DIR}/nginx/dhparam.pem" 2048
+  if [[ ! -f "${data_dir}/nginx/dhparam.pem" ]]; then
+    openssl dhparam -out "${data_dir}/nginx/dhparam.pem" 2048
   fi
 
   (
-    local ENABLED NAME
+    local main_domain
+    local -a web_services_list
+    local enabled name host fqdn
 
-    MAIN_DOMAIN="$(strip_star "$(extract_main "${CONFIG_FILE}")")"
-    HOST_SNI=""
-    WEB_SERVICES_LIST=( $(web_services_list) )
+    main_domain="$(strip_star "$(extract_main "${config_file}")")"
+    web_services_list=( $(web_services_list) )
 
-    for WEB_SERVICE in "${WEB_SERVICES_LIST[@]}"; do
-      NAME="${WEB_SERVICE}"
-      ENABLED="$(yq r "${CONFIG_FILE}" "services.web_services.${WEB_SERVICE}.enabled")"
-      if [[ "${ENABLED}" = "true" ]]; then
-        HOST="$(yq r "${CONFIG_FILE}" "services.web_services.${WEB_SERVICE}.host")"
-        ln -s -f "../sites-available/${NAME}.conf" "${SERVICE_DIR}/rootfs/etc/nginx/sites-enabled/${NAME}.conf"
-        sed -i --follow-symlinks -e "s|server_name.*;$|server_name ${HOST}.*;|g" "${SERVICE_DIR}/rootfs/etc/nginx/sites-enabled/${NAME}.conf"
-        HOST_SNI+="\"${HOST}.${MAIN_DOMAIN}\","
+    for web_service in "${web_services_list[@]}"; do
+      name="${web_service}"
+      enabled="$(yq r "${config_file}" "services.web_services.${web_service}.enabled")"
+      if [[ "${enabled}" = "true" ]]; then
+        host="$(yq r "${config_file}" "services.web_services.${web_service}.host")"
+        cp "${service_dir}/rootfs/etc/nginx/sites-available/${name}.conf" "${service_dir}/rootfs/etc/nginx/templates/${name}.conf.template"
+        fqdn="${host}.${main_domain}"
       else
-        rm -f "${SERVICE_DIR}/rootfs/etc/nginx/sites-enabled/${NAME}.conf"
+        rm -f "${service_dir}/rootfs/etc/nginx/sites-enabled/${name}.conf"
+        rm -f "${service_dir}/rootfs/etc/nginx/templates/${name}.template"
+        fqdn=""
       fi
-    done
 
-    sed -i \
-      -e "s|^MP_NGINX_HOST_SNI=.*$|MP_NGINX_HOST_SNI=${HOST_SNI%,}|g" \
-      "${APP_DIR}/.env"
+      sed -i \
+        -e "s|^MP_FQDN_${web_service^^}=.*$|MP_FQDN_${web_service^^}=${fqdn}|g" \
+        "${app_dir}/.env"
+    done
   )
 }

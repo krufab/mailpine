@@ -31,6 +31,9 @@ $cfg['Servers'][$i]['host'] = getenv('MP_PMA_DB_HOST');
 $cfg['Servers'][$i]['compress'] = true;
 $cfg['Servers'][$i]['AllowNoPassword'] = false;
 
+$cfg['Servers'][$i]['ssl'] = true;
+$cfg['Servers'][$i]['ssl_verify'] = true;
+
 /**
  * phpMyAdmin configuration storage settings.
  */

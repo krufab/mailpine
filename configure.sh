@@ -82,8 +82,8 @@ check_config_version "${CONFIG_FILE}" "${MIN_CONFIG_VERSION}"
 declare APPS_DIR="${THIS_PATH}/apps"
 declare DATA_DIR
 DATA_DIR="$(realpath "$(yq r "${CONFIG_FILE}" 'config.data-dir')")"
-declare LOGS_DIR
-LOGS_DIR="$(realpath "$(yq r "${CONFIG_FILE}" 'config.logs-dir')")"
+declare LOG_DIR
+LOG_DIR="$(realpath "$(yq r "${CONFIG_FILE}" 'config.log-dir')")"
 
 declare MP_P_ALL="true"
 declare MP_P_SEL="-"
@@ -128,7 +128,7 @@ while [[ ${#} -gt 0 ]]; do
   esac
 done
 
-prepare_folders "${DATA_DIR}" "${LOGS_DIR}"
+prepare_folders "${DATA_DIR}" "${LOG_DIR}"
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mailpine"; then
   # shellcheck source=./tools/docker.sh
@@ -169,13 +169,13 @@ fi
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mail"; then
   # shellcheck source=./tools/mail/apps_mail.sh
   source "${THIS_PATH}/tools/mail/apps_mail.sh"
-  configure_mail "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
+  configure_mail "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}" "${LOG_DIR}"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "web"; then
   # shellcheck source=./tools/web/apps_web_services.sh
   source "${THIS_PATH}/tools/web/apps_web_services.sh"
-  configure_web_services "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
+  configure_web_services "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}" "${LOG_DIR}"
 fi
 
 echo_ok "Configuration completed successfully"

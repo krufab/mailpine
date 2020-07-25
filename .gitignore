@@ -1,7 +1,7 @@
 .idea/
 backup/
 data/
-logs/
+log/
 z_old/
 
 .env

@@ -17,31 +17,31 @@ export TICK
 export CROSS
 export INFO
 
-function echo_error() {
+function echo_error {
   echo -e "${CROSS} ${*}" >&2
 }
 
-function echo_info() {
+function echo_info {
   echo -e " ${INFO} ${*}"
 }
 
-function echo_info_verbose() {
+function echo_info_verbose {
   if [[ "${VERBOSE}" == "1" ]]; then
     echo -e " ${INFO} ${*}"
   fi
 }
 
-function echo_ok() {
+function echo_ok {
   echo -e "\e[1;32m${TICK}\e[0m ${*}"
 }
 
-function echo_ok_verbose() {
+function echo_ok_verbose {
   if [[ "${VERBOSE}" == "1" ]]; then
     echo -e " \e[1;32m${TICK_VERBOSE}\e[0m ${*}"
   fi
 }
 
-function check_or_create_dir_or_exit() {
+function check_or_create_dir_or_exit {
   local THE_DIR
   THE_DIR="${1}"
 
@@ -57,7 +57,7 @@ function check_or_create_dir_or_exit() {
   fi
 }
 
-function copy_template() {
+function copy_template {
   local APP_DIR
 
   APP_DIR="${1}"
@@ -67,7 +67,7 @@ function copy_template() {
   fi
 }
 
-function set_MP_DATA_DIR_variable() {
+function set_MP_DATA_DIR_variable {
   local CONFIG_FILE APP_DIR DATA_DIR
 
   CONFIG_FILE="${1}"
@@ -79,7 +79,17 @@ function set_MP_DATA_DIR_variable() {
   fi
 }
 
-function set_TZ_variable() {
+function set_MP_LOG_DIR_variable {
+  local CONFIG_FILE="${1}"
+  local APP_DIR="${2}"
+  local LOG_DIR="${3}"
+
+  if [[ -z "${MP_LOG_DIR}" ]]; then
+    sed -i -e "s|^MP_LOG_DIR.*$|MP_LOG_DIR=${LOG_DIR}|g" "${APP_DIR}/.env"
+  fi
+}
+
+function set_TZ_variable {
   local CONFIG_FILE APP_DIR
   local TIMEZONE
 
@@ -92,7 +102,7 @@ function set_TZ_variable() {
   fi
 }
 
-function check_config_version() {
+function check_config_version {
   echo_ok "Checking configuration file version"
 
   local CONFIG_FILE MIN_CONFIG_VERSION
@@ -101,7 +111,7 @@ function check_config_version() {
   CONFIG_FILE="${1}"
   MIN_CONFIG_VERSION="${2}"
 
-  CONFIG_VERSION=$(yq r "${CONFIG_FILE}" 'version')
+  CONFIG_VERSION="$(yq r "${CONFIG_FILE}" 'version')"
 
   if [[ "${MIN_CONFIG_VERSION}" != "${CONFIG_VERSION}" ]]; then
     echo_error "Wrong configuration file version."
@@ -111,11 +121,9 @@ function check_config_version() {
   echo_ok_verbose "Configuration file version check completed successfully"
 }
 
-function get_verbose_value() {
-  local CONFIG_FILE
+function get_verbose_value {
+  local CONFIG_FILE="${1}"
   local VERBOSITY_LEVEL
-
-  CONFIG_FILE="${1}"
 
   VERBOSITY_LEVEL=$(yq r "${CONFIG_FILE}" 'config.verbosity_level')
   if [[ -z "${VERBOSITY_LEVEL}" ]]; then
@@ -125,7 +133,7 @@ function get_verbose_value() {
   fi
 }
 
-function run_step_single() {
+function run_step_single {
   local MP_P_ALL="${1}"
   local MP_P_SEL="${2}"
   local STEP="${3}"
@@ -133,7 +141,7 @@ function run_step_single() {
   [[ "${MP_P_ALL}" != "-" ]] || [[ "${MP_P_SEL}" == *"${STEP}"* ]]
 }
 
-function run_step() {
+function run_step {
   local MP_P_ALL="${1}"
   local MP_P_SEL="${2}"
   local STEPS="${3}"

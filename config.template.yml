@@ -15,7 +15,7 @@ config:
   data-dir: './data'
   docker:
     prefix: mp_
-  logs-dir: './logs'
+  log-dir: './log'
   timezone: "Europe/Luxembourg"
   verbosity_level: 1
 

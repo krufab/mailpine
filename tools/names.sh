@@ -5,20 +5,17 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function get_MP_DOMAIN() {
-  local CONFIG_FILE
-
-  CONFIG_FILE="${1}"
+function get_MP_DOMAIN {
+  local CONFIG_FILE="${1}"
 
   strip_star "$(extract_main "${CONFIG_FILE}")"
 }
 
-function get_HOST_x() {
-  local CONFIG_FILE NAME
-  local HOST
+function get_HOST_x {
+  local CONFIG_FILE="${1}"
+  local NAME="${2}"
 
-  CONFIG_FILE="${1}"
-  NAME="${2}"
+  local HOST
 
   case "${NAME}" in
     mail | smtp)
@@ -40,12 +37,11 @@ function get_HOST_x() {
   echo "${HOST}"
 }
 
-function get_MP_FQDN_x() {
-  local CONFIG_FILE NAME
-  local HOST DOMAIN
+function get_MP_FQDN_x {
+  local CONFIG_FILE="${1}"
+  local NAME="${2}"
 
-  CONFIG_FILE="${1}"
-  NAME="${2}"
+  local HOST DOMAIN
 
   DOMAIN="$(get_MP_DOMAIN "${CONFIG_FILE}")"
   HOST="$(get_HOST_x "${CONFIG_FILE}" "${NAME}")"
@@ -53,39 +49,31 @@ function get_MP_FQDN_x() {
   echo "${HOST}.${DOMAIN}"
 }
 
-function get_MP_D_PREFIX() {
-  local CONFIG_FILE
-
-  CONFIG_FILE="${1}"
+function get_MP_D_PREFIX {
+  local CONFIG_FILE="${1}"
 
   yq r "${CONFIG_FILE}" 'config.docker.prefix'
 }
 
 # Get Mailpine Docker profile name
-function get_MP_D_PROFILE_x() {
-  local CONFIG_FILE NAME
-
-  CONFIG_FILE="${1}"
-  NAME="${2}"
+function get_MP_D_PROFILE_x {
+  local CONFIG_FILE="${1}"
+  local NAME="${2}"
 
    echo "$(get_MP_D_PREFIX "${CONFIG_FILE}")${NAME}"
 }
 
-function get_MP_D_NETWORK_x() {
-  local CONFIG_FILE NAME
-
-  CONFIG_FILE="${1}"
-  NAME="${2}"
+function get_MP_D_NETWORK_x {
+  local CONFIG_FILE="${1}"
+  local NAME="${2}"
 
   echo "$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "${NAME}")_${NAME}"
 }
 
-function get_MP_D_CONTAINER_x() {
-  local CONFIG_FILE PROFILE NAME
-
-  CONFIG_FILE="${1}"
-  PROFILE="${2}"
-  NAME="${3}"
+function get_MP_D_CONTAINER_x {
+  local CONFIG_FILE="${1}"
+  local PROFILE="${2}"
+  local NAME="${3}"
 
   echo "$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "${PROFILE}")_${NAME}_1"
 }

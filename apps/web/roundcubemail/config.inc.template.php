@@ -61,7 +61,7 @@ $config['log_driver'] = 'file';
 
 // date format for log entries
 // (read http://php.net/manual/en/function.date.php for all format characters)  
-$config['log_date_format'] = 'Y-M-dTH:i:s O';
+$config['log_date_format'] = 'c';
 
 // length of the session ID to prepend each log line with
 // set to 0 to avoid session IDs being logged.

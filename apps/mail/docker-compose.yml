@@ -21,6 +21,7 @@ services:
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_DATA_DIR}/mail:/data/mail"
+      - "${MP_LOG_DIR}/mail:/log/mail"
 
   opendkim:
     build:
