@@ -525,7 +525,8 @@ $config['ip_check'] = false;
 // X-Frame-Options HTTP header value sent to prevent from Clickjacking.
 // Possible values: sameorigin|deny|allow-from <uri>.
 // Set to false in order to disable sending the header.
-$config['x_frame_options'] = 'sameorigin';
+// Setting to false as nginx is already sending it
+$config['x_frame_options'] = false;
 
 // This key is used for encrypting purposes, like storing of imap password
 // in the session. For historical reasons it's called DES_key, but it's used
