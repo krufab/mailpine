@@ -1,6 +1,16 @@
-FROM alpine:3.11 AS build
+FROM alpine:3.11 AS overlay
 
 RUN wget -O /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v1.21.7.0/s6-overlay-amd64.tar.gz
+
+#-----------------
+
+FROM alpine:3.11 AS build
+
+RUN apk add --no-cache \
+  gettext \
+  moreutils
+
+#-----------------
 
 FROM alpine:edge
 
@@ -13,10 +23,12 @@ RUN apk add --no-cache \
   unbound \
   tzdata
 
-COPY --from=build /tmp/s6-overlay.tar.gz /tmp/
+COPY --from=overlay /tmp/s6-overlay.tar.gz /tmp/
 
 RUN tar -xzf /tmp/s6-overlay.tar.gz -C / \
   && rm -rf /tmp/s6-overlay.tar.gz
+
+COPY --from=build /usr/bin/envsubst /usr/bin/sponge /usr/bin/
 
 COPY rootfs /
 

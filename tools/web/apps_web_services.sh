@@ -6,48 +6,46 @@ set -o nounset
 set -o pipefail
 
 function configure_web_services {
-  local CONFIG_FILE APPS_DIR DATA_DIR
-  local APP_DIR SERVICE_DIR
+  echo_ok "Configuring web services"
+  local config_file="${1}"
+  local apps_dir="${2}"
+  local data_dir="${3}"
+  local log_dir="${4}"
 
-  CONFIG_FILE="${1}"
-  APPS_DIR="${2}"
-  DATA_DIR="${3}"
-  LOG_DIR="${4}"
+  local app_dir="${apps_dir}/web"
 
-  APP_DIR="${APPS_DIR}/web"
+  copy_template "${app_dir}"
 
-  copy_template "${APP_DIR}"
-
-  cp "${APP_DIR}/pa/config.local.template.php" "${APP_DIR}/pa/config.local.php"
-  cp "${APP_DIR}/pma/config.user.inc.template.php" "${APP_DIR}/pma/config.user.inc.php"
-  cp "${APP_DIR}/roundcubemail/config.inc.template.php" "${APP_DIR}/roundcubemail/config.inc.php"
+  cp "${app_dir}/pa/config.local.template.php" "${app_dir}/pa/config.local.php"
+  cp "${app_dir}/pma/config.user.inc.template.php" "${app_dir}/pma/config.user.inc.php"
+  cp "${app_dir}/roundcubemail/config.inc.template.php" "${app_dir}/roundcubemail/config.inc.php"
 
   (
     unset TZ
 
-    source "${APP_DIR}/.env"
+    source "${app_dir}/.env"
 
-    set_MP_DATA_DIR_variable "${CONFIG_FILE}" "${APP_DIR}" "${DATA_DIR}"
-    set_MP_LOG_DIR_variable "${CONFIG_FILE}" "${APP_DIR}" "${LOG_DIR}"
-    set_TZ_variable "${CONFIG_FILE}" "${APP_DIR}"
+    set_MP_DATA_DIR_variable "${app_dir}" "${data_dir}"
+    set_MP_LOG_DIR_variable "${app_dir}" "${log_dir}"
+    set_TZ_variable "${config_file}" "${app_dir}"
 
-    docker run --rm -v "${LOG_DIR}:/tmp/log" \
+    docker run --rm -v "${log_dir}:/tmp/log" \
       mailpine-tools:latest \
       bash -ce "chown -R 82:82 /tmp/log/roundcubemail"
 
-    MP_DOMAIN="$(get_MP_DOMAIN "${CONFIG_FILE}")"
-    MP_FQDN_POSTFIXADMIN="$(get_MP_FQDN_x "${CONFIG_FILE}" "postfixadmin")"
+    MP_DOMAIN="$(get_MP_DOMAIN "${config_file}")"
+    MP_FQDN_POSTFIXADMIN="$(get_MP_FQDN_x "${config_file}" "postfixadmin")"
     if [[ -z "${MP_PMA_BLOWFISH_SECRET}" ]]; then
       MP_PMA_BLOWFISH_SECRET="$(openssl rand -base64 32)"
     fi
 
-    DB_HOST="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "mariadb" "mariadb")"
-    POSTFIXADMIN="$(grep 'MP_PASSWORD_POSTFIXADMIN=' "${APPS_DIR}/mariadb/.env")"
-    ROUNDCUBE="$(grep 'MP_PASSWORD_ROUNDCUBE=' "${APPS_DIR}/mariadb/.env")"
-    PA_SMTP_SERVER="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "mail" "mail")"
-    PA_SMTP_CLIENT="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "web" "pa")"
-    FQDN_MAIL="$(get_MP_FQDN_x "${CONFIG_FILE}" "mail")"
-    FQDN_SMTP="$(get_MP_FQDN_x "${CONFIG_FILE}" "smtp")"
+    DB_HOST="$(get_MP_D_CONTAINER_x "${config_file}" "mariadb" "mariadb")"
+    POSTFIXADMIN="$(grep 'MP_PASSWORD_POSTFIXADMIN=' "${apps_dir}/mariadb/.env")"
+    ROUNDCUBE="$(grep 'MP_PASSWORD_ROUNDCUBE=' "${apps_dir}/mariadb/.env")"
+    PA_SMTP_SERVER="$(get_MP_D_CONTAINER_x "${config_file}" "mail" "mail")"
+    PA_SMTP_CLIENT="$(get_MP_D_CONTAINER_x "${config_file}" "web" "pa")"
+    FQDN_MAIL="$(get_MP_FQDN_x "${config_file}" "mail")"
+    FQDN_SMTP="$(get_MP_FQDN_x "${config_file}" "smtp")"
 
     sed -i \
       -e "s|^MP_DOMAIN=.*$|MP_DOMAIN=${MP_DOMAIN}|g" \
@@ -61,14 +59,16 @@ function configure_web_services {
       -e "s|^ROUNDCUBEMAIL_DB_PASSWORD=.*$|ROUNDCUBEMAIL_DB_PASSWORD=${ROUNDCUBE#*=}|g" \
       -e "s|^ROUNDCUBEMAIL_DEFAULT_HOST=.*$|ROUNDCUBEMAIL_DEFAULT_HOST=ssl://${FQDN_MAIL}|g" \
       -e "s|^ROUNDCUBEMAIL_SMTP_SERVER=.*$|ROUNDCUBEMAIL_SMTP_SERVER=tls://${FQDN_SMTP}|g" \
-      "${APP_DIR}/.env"
+      "${app_dir}/.env"
   )
 
   #       -e "s|^POSTFIXADMIN_SMTP_SERVER=.*$|POSTFIXADMIN_SMTP_SERVER=tls://${FQDN_SMTP}|g" \
 #       -e "s|^ROUNDCUBEMAIL_SMTP_SERVER=.*$|ROUNDCUBEMAIL_SMTP_SERVER=tls://${FQDN_SMTP}|g" \
 
 
-  process_web_nginx "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}"
+  process_web_nginx "${config_file}" "${apps_dir}" "${data_dir}"
+
+  echo_ok_verbose "Web services configuration completed successfully"
 }
 
 

@@ -50,17 +50,21 @@ while [[ ${#} -gt 0 ]]; do
 done
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "web"; then
-  stop_web "${CONFIG_FILE}" "${APPS_DIR}"
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "web"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mail opendkim opendmarc spf"; then
-  stop_mail "${CONFIG_FILE}" "${APPS_DIR}"
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "mail"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
-  stop_mariadb "${CONFIG_FILE}" "${APPS_DIR}"
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "mariadb"
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "fail2ban"; then
-  stop_fail2ban "${CONFIG_FILE}" "${APPS_DIR}"
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "fail2ban"
+fi
+
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "antivirus"; then
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "antivirus"
 fi

@@ -119,7 +119,8 @@ $config['redis_debug'] = false;
 // The IMAP host chosen to perform the log-in.
 // Leave blank to show a textbox at login, give a list of hosts
 // to display a pulldown menu or set one host as string.
-// To use SSL/TLS connection, enter hostname with prefix ssl:// or tls://
+// Enter hostname with prefix ssl:// to use Implicit TLS, or use
+// prefix tls:// to use STARTTLS.
 // Supported replacement variables:
 // %n - hostname ($_SERVER['SERVER_NAME'])
 // %t - hostname without the first part
@@ -242,8 +243,8 @@ $config['messages_cache_threshold'] = 50;
 // ----------------------------------
 
 // SMTP server host (for sending mails).
-// Enter hostname with prefix tls:// to use STARTTLS, or use
-// prefix ssl:// to use the deprecated SSL over SMTP (aka SMTPS)
+// Enter hostname with prefix ssl:// to use Implicit TLS, or use
+// prefix tls:// to use STARTTLS.
 // Supported replacement variables:
 // %h - user's IMAP hostname
 // %n - hostname ($_SERVER['SERVER_NAME'])
@@ -251,9 +252,11 @@ $config['messages_cache_threshold'] = 50;
 // %d - domain (http hostname $_SERVER['HTTP_HOST'] without the first part)
 // %z - IMAP domain (IMAP hostname without the first part)
 // For example %n = mail.domain.tld, %t = domain.tld
+// To specify differnt SMTP servers for different IMAP hosts provide an array
+// of IMAP host (no prefix or port) and SMTP server e.g. array('imap.example.com' => 'smtp.example.net')
 $config['smtp_server'] = getenv('ROUNDCUBEMAIL_SMTP_SERVER');
 
-// SMTP port (default is 587)
+// SMTP port. Use 25 for cleartext, 465 for Implicit TLS, or 587 for STARTTLS (default)
 $config['smtp_port'] = getenv('ROUNDCUBEMAIL_SMTP_PORT');
 
 // SMTP username (if required) if you use %u as the username Roundcube
@@ -274,9 +277,9 @@ $config['smtp_auth_cid'] = null;
 // Optional SMTP authentication password to be used for smtp_auth_cid
 $config['smtp_auth_pw'] = null;
 
-// SMTP HELO host 
-// Hostname to give to the remote server for SMTP 'HELO' or 'EHLO' messages 
-// Leave this blank and you will get the server variable 'server_name' or 
+// SMTP HELO host
+// Hostname to give to the remote server for SMTP 'HELO' or 'EHLO' messages
+// Leave this blank and you will get the server variable 'server_name' or
 // localhost if that isn't defined.
 $config['smtp_helo_host'] = '';
 
@@ -421,7 +424,7 @@ $config['user_aliases'] = false;
 // This is used by the 'file' log driver.
 $config['log_dir'] = RCUBE_INSTALL_PATH . 'logs/';
 
-// use this folder to store temp files
+// Location of temporary saved files such as attachments and cache files
 // must be writeable for the user who runs PHP process (Apache user if mod_php is being used)
 $config['temp_dir'] = RCUBE_INSTALL_PATH . 'temp/';
 
@@ -457,6 +460,7 @@ $config['login_username_maxlen'] = 1024;
 $config['login_password_maxlen'] = 1024;
 
 // Logon username filter. Regular expression for use with preg_match().
+// Use special value 'email' if you accept only full email addresses as user logins.
 // Example: '/^[a-z0-9_@.-]+$/'
 $config['login_username_filter'] = null;
 
@@ -485,6 +489,11 @@ $config['session_auth_name'] = null;
 
 // Session path. Defaults to PHP session.cookie_path setting.
 $config['session_path'] = null;
+
+// Session samesite. Defaults to PHP session.cookie_samesite setting.
+// Requires PHP >= 7.3.0, see https://wiki.php.net/rfc/same-site-cookie for more info
+// Possible values: null (default), 'Lax', or 'Strict'
+$config['session_samesite'] = null;
 
 // Backend to use for session storage. Can either be 'db' (default), 'redis', 'memcache', or 'php'
 //
@@ -516,11 +525,12 @@ $config['ip_check'] = false;
 // X-Frame-Options HTTP header value sent to prevent from Clickjacking.
 // Possible values: sameorigin|deny|allow-from <uri>.
 // Set to false in order to disable sending the header.
-$config['x_frame_options'] = false;
+$config['x_frame_options'] = 'sameorigin';
 
 // This key is used for encrypting purposes, like storing of imap password
 // in the session. For historical reasons it's called DES_key, but it's used
 // with any configured cipher_method (see below).
+// For the default cipher_method a required key length is 24 characters.
 $config['des_key'] = 'rcmail-!24ByteDESkey*Str';
 
 // Encryption algorithm. You can use any method supported by OpenSSL.
@@ -631,9 +641,12 @@ $config['identities_level'] = 0;
 $config['identity_image_size'] = 64;
 
 // Mimetypes supported by the browser.
-// attachments of these types will open in a preview window
-// either a comma-separated list or an array: 'text/plain,text/html,text/xml,image/jpeg,image/gif,image/png,application/pdf'
-$config['client_mimetypes'] = null;  # null == default
+// Attachments of these types will open in a preview window.
+// Either a comma-separated list or an array. Default list includes:
+//     text/plain,text/html,
+//     image/jpeg,image/gif,image/png,image/bmp,image/tiff,image/webp,
+//     application/x-javascript,application/pdf,application/x-shockwave-flash
+$config['client_mimetypes'] = null;
 
 // Path to a local mime magic database file for PHPs finfo extension.
 // Set to null if the default path should be used.
@@ -699,7 +712,7 @@ $config['plugins'] = array();
 // USER INTERFACE
 // ----------------------------------
 
-// default messages sort column. Use empty value for default server's sorting, 
+// default messages sort column. Use empty value for default server's sorting,
 // or 'arrival', 'date', 'subject', 'from', 'to', 'fromto', 'size', 'cc'
 $config['message_sort_col'] = '';
 
@@ -761,7 +774,7 @@ $config['protect_default_folders'] = true;
 // Disable localization of the default folder names listed above
 $config['show_real_foldernames'] = false;
 
-// if in your system 0 quota means no limit set this option to true 
+// if in your system 0 quota means no limit set this option to true
 $config['quota_zero_as_unlimited'] = false;
 
 // Make use of the built-in spell checker. It is based on GoogieSpell.
@@ -824,8 +837,8 @@ $config['compose_responses_static'] = array(
 );
 
 // List of HKP key servers for PGP public key lookups in Enigma/Mailvelope
-// Default: array("keys.fedoraproject.org", "keybase.io")
-$config['keyservers'] = array();
+// Note: Lookup is client-side, so the server must support Cross-Origin Resource Sharing
+$config['keyservers'] = array('keys.openpgp.org');
 
 // ----------------------------------
 // ADDRESSBOOK SETTINGS
@@ -843,7 +856,7 @@ $config['address_book_type'] = 'sql';
 // Array key must contain only safe characters, ie. a-zA-Z0-9_
 $config['ldap_public'] = array();
 
-// If you are going to use LDAP for individual address books, you will need to 
+// If you are going to use LDAP for individual address books, you will need to
 // set 'user_specific' to true and use the variables to generate the appropriate DNs to access it.
 //
 // The recommended directory structure for LDAP is to store all the address book entries
@@ -856,7 +869,7 @@ $config['ldap_public'] = array();
 //
 // So the base_dn would be uid=%fu,ou=people,o=root
 // The bind_dn would be the same as based_dn or some super user login.
-/* 
+/*
  * example config for Verisign directory
  *
 $config['ldap_public']['Verisign'] = array(
@@ -868,6 +881,7 @@ $config['ldap_public']['Verisign'] = array(
   // %d - domain (http hostname $_SERVER['HTTP_HOST'] without the first part)
   // %z - IMAP domain (IMAP hostname without the first part)
   // For example %n = mail.domain.tld, %t = domain.tld
+  // Note: Host can also be a full URI e.g. ldaps://hostname.local:636 (for SSL)
   'hosts'         => array('directory.verisign.com'),
   'port'          => 389,
   'use_tls'       => false,
@@ -961,7 +975,7 @@ $config['ldap_public']['Verisign'] = array(
   'sub_fields' => array(),
   // Generate values for the following LDAP attributes automatically when creating a new record
   'autovalues' => array(
-  // 'uid'  => 'md5(microtime())',               // You may specify PHP code snippets which are then eval'ed 
+  // 'uid'  => 'md5(microtime())',               // You may specify PHP code snippets which are then eval'ed
   // 'mail' => '{givenname}.{sn}@mydomain.com',  // or composite strings with placeholders for existing attributes
   ),
   'sort'           => 'cn',         // The field to sort the listing by.
@@ -977,7 +991,6 @@ $config['ldap_public']['Verisign'] = array(
   'referrals'      => false,        // Sets the LDAP_OPT_REFERRALS option. Mostly used in multi-domain Active Directory setups
   'dereference'    => 0,            // Sets the LDAP_OPT_DEREF option. One of: LDAP_DEREF_NEVER, LDAP_DEREF_SEARCHING, LDAP_DEREF_FINDING, LDAP_DEREF_ALWAYS
                                     // Used where addressbook contains aliases to objects elsewhere in the LDAP tree.
-
   // definition for contact groups (uncomment if no groups are supported)
   // for the groups base_dn, the user replacements %fu, %u, %d and %dc work as for base_dn (see above)
   // if the groups base_dn is empty, the contact base_dn is used for the groups as well
@@ -1064,10 +1077,11 @@ $config['contact_search_name'] = '{name} <{email}>';
 // Use this charset as fallback for message decoding
 $config['default_charset'] = 'ISO-8859-1';
 
-// skin name: folder from skins/
+// Skin name: folder from skins/
 $config['skin'] = 'elastic';
 
-// limit skins available/shown in the settings section
+// Limit skins available for the user.
+// Note: When not empty, it should include the default skin set in 'skin' option.
 $config['skins_allowed'] = array();
 
 // Enables using standard browser windows (that can be handled as tabs)
@@ -1144,7 +1158,7 @@ $config['logout_purge'] = false;
 // Compact INBOX on logout
 $config['logout_expunge'] = false;
 
-// Display attached images below the message body 
+// Display attached images below the message body
 $config['inline_images'] = true;
 
 // Encoding of long/non-ascii attachment names:

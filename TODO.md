@@ -1,17 +1,20 @@
 - &check; Selectively:
-  - configure services (i.e. `configure.sh -s opendkim`)
-  - start service (i.e. `run.sh -s opendkim`)
-  - stop service (i.e. `stop.sh -s opendkim`)
+  - &check; configure services (i.e. `configure.sh -s opendkim`)
+  - &check; start service (i.e. `run.sh -s opendkim`)
+  - &check; stop service (i.e. `stop.sh -s opendkim`)
 - [ ] Debug (i.e. `configure.sh -D`)
   - [ ] Selectively debug service (i.e. `configure.sh -d opendkim`)
   - [ ] Adjust verbosity of services
-- Log folder
+- &check; Log folder
 - Backup folder
 - Tests
-- Antivirus
+- &check; Antivirus
 - CAA RR validation
 - Help
 - Enable brotli
 - IPv6
   - https://collabnix.com/enabling-ipv6-functionality-for-docker-and-docker-compose/
 - Ignore own IP in fail2ban
+- email autoconfig
+  - https://developer.mozilla.org/en-US/docs/Mozilla/Thunderbird/Autoconfiguration
+  - https://developer.mozilla.org/en-US/docs/Mozilla/Thunderbird/Autoconfiguration/FileFormat/HowTo

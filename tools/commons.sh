@@ -42,63 +42,54 @@ function echo_ok_verbose {
 }
 
 function check_or_create_dir_or_exit {
-  local THE_DIR
-  THE_DIR="${1}"
+  local the_dir="${1}"
 
-  if [[ -d "${THE_DIR}" ]]; then
-    echo_ok_verbose "'${THE_DIR}' already created"
+  if [[ -d "${the_dir}" ]]; then
+    echo_ok_verbose "'${the_dir}' already created"
   else
-    if mkdir -p "${THE_DIR}"; then
-      echo_ok_verbose "'${THE_DIR}' directory created"
+    if mkdir -p "${the_dir}"; then
+      echo_ok_verbose "'${the_dir}' directory created"
     else
-      echo_error "Directory '${THE_DIR}' could not be created"
+      echo_error "Directory '${the_dir}' could not be created"
       exit 1
     fi
   fi
 }
 
 function copy_template {
-  local APP_DIR
+  local app_dir="${1}"
 
-  APP_DIR="${1}"
-
-  if [[ ! -f "${APP_DIR}/.env" ]]; then
-    cp "${APP_DIR}/.env.template" "${APP_DIR}/.env"
+  if [[ ! -f "${app_dir}/.env" ]]; then
+    cp "${app_dir}/.env.template" "${app_dir}/.env"
   fi
 }
 
 function set_MP_DATA_DIR_variable {
-  local CONFIG_FILE APP_DIR DATA_DIR
-
-  CONFIG_FILE="${1}"
-  APP_DIR="${2}"
-  DATA_DIR="${3}"
+  local app_dir="${1}"
+  local data_dir="${2}"
 
   if [[ -z "${MP_DATA_DIR}" ]]; then
-    sed -i -e "s|^MP_DATA_DIR.*$|MP_DATA_DIR=${DATA_DIR}|g" "${APP_DIR}/.env"
+    sed -i -e "s|^MP_DATA_DIR.*$|MP_DATA_DIR=${data_dir}|g" "${app_dir}/.env"
   fi
 }
 
 function set_MP_LOG_DIR_variable {
-  local CONFIG_FILE="${1}"
-  local APP_DIR="${2}"
-  local LOG_DIR="${3}"
+  local app_dir="${1}"
+  local log_dir="${2}"
 
   if [[ -z "${MP_LOG_DIR}" ]]; then
-    sed -i -e "s|^MP_LOG_DIR.*$|MP_LOG_DIR=${LOG_DIR}|g" "${APP_DIR}/.env"
+    sed -i -e "s|^MP_LOG_DIR.*$|MP_LOG_DIR=${log_dir}|g" "${app_dir}/.env"
   fi
 }
 
 function set_TZ_variable {
-  local CONFIG_FILE APP_DIR
-  local TIMEZONE
-
-  CONFIG_FILE="${1}"
-  APP_DIR="${2}"
+  local config_file="${1}"
+  local app_dir="${2}"
+  local timezone
 
   if [[ -z "${TZ}" ]]; then
-    TIMEZONE="$(yq r "${CONFIG_FILE}" 'config.timezone')"
-    sed -i -e "s|^TZ.*$|TZ=${TIMEZONE}|g" "${APP_DIR}/.env"
+    timezone="$(yq r "${config_file}" 'config.timezone')"
+    sed -i -e "s|^TZ.*$|TZ=${timezone}|g" "${app_dir}/.env"
   fi
 }
 

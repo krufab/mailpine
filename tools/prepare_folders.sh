@@ -13,7 +13,9 @@ function prepare_folders {
 
   local -a DATA_SUBDIRS=(
     'acme.sh'
+    'antivirus'
     'certs'
+    'fail2ban'
     'letsencrypt'
     'mail'
     'mail/postfix'
@@ -25,8 +27,10 @@ function prepare_folders {
   )
 
   local -a LOG_SUBDIRS=(
+    'antivirus'
     'mail'
     'nginx'
+    'roundcubemail'
   )
 
   check_or_create_dir_or_exit "${DATA_DIR}"

@@ -1,3 +1,9 @@
+2020-08-01:
+- added clamav
+- added fail2ban
+- added log folder
+- improved scripts and configurations
+
 2020-07-10:
 - Removed OSCP must staple option from certificate requests as not supported by dovecot nor postfix (#10)
   - Check: https://serverfault.com/queùstions/830434/do-postfix-and-dovecot-support-ocsp-stapling/878378

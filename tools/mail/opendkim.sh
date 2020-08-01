@@ -6,12 +6,11 @@ set -o nounset
 set -o pipefail
 
 function generate_opendkim {
-  local DOMAIN OPENDKIM_DIR
+  local DOMAIN="${1}"
+  local OPENDKIM_DIR="${2}"
+
   local SELECTOR='mail' COMMAND_PARAMS
   local LOCAL_PUBLIC DNS_PUBLIC
-
-  DOMAIN="${1}"
-  OPENDKIM_DIR="${2}"
 
   local DOMAIN_DIR="${OPENDKIM_DIR}/keys/${DOMAIN}"
   local PRIVATE_FILE="${DOMAIN_DIR}/${SELECTOR}.private"

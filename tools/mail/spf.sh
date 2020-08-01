@@ -70,5 +70,5 @@ function configure_spf {
 #	SPF_RESULT_PERMERROR
 #
   done
-  echo_ok_verbose "Spf check settings completed successfully"
+  echo_ok_verbose "Spf settings check completed successfully"
 }

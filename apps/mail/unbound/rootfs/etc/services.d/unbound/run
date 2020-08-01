@@ -2,5 +2,8 @@
 
 echo "s6-supervise: spawning unbound process"
 
+# More verbose
+#exec unbound -v &> /dev/stdout
+
 # Need to specify config file
 exec unbound &> /dev/stdout

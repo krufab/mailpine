@@ -74,7 +74,7 @@ while [[ ${#} -gt 0 ]]; do
 done
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "web"; then
-  stop_web "${CONFIG_FILE}" "${APPS_DIR}"
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "web"
 
   # shellcheck source=./tools/web/apps_web_services.sh
   source "${THIS_PATH}/tools/web/apps_web_services.sh"
@@ -83,8 +83,8 @@ if run_step "${MP_P_ALL}" "${MP_P_SEL}" "web"; then
   run_web "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"
 fi
 
-if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mail opendkim opendmarc spf"; then
-  stop_mail "${CONFIG_FILE}" "${APPS_DIR}"
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mail postfix opendkim opendmarc spf"; then
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "mail"
 
   # shellcheck source=./tools/mail/apps_mail.sh
   source "${THIS_PATH}/tools/mail/apps_mail.sh"
@@ -103,7 +103,7 @@ if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mail opendkim opendmarc spf"; then
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
-  stop_mariadb "${CONFIG_FILE}" "${APPS_DIR}"
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "mariadb"
 
   # shellcheck source=./tools/mariadb/apps_mariadb.sh
   source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"
@@ -113,6 +113,21 @@ if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
 fi
 
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "fail2ban"; then
-  stop_fail2ban "${CONFIG_FILE}" "${APPS_DIR}"
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "fail2ban"
+
+  # shellcheck source=./tools/fail2ban/apps_fail2ban.sh
+  source "${THIS_PATH}/tools/fail2ban/apps_fail2ban.sh"
+  configure_fail2ban "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}" "${LOG_DIR}"
+
   run_fail2ban "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"
+fi
+
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "antivirus"; then
+  stop_service "${CONFIG_FILE}" "${APPS_DIR}" "antivirus"
+
+  # shellcheck source=./tools/antivirus/apps_antivirus.sh
+  source "${THIS_PATH}/tools/antivirus/apps_antivirus.sh"
+  configure_antivirus "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}" "${LOG_DIR}"
+
+  run_antivirus "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"
 fi

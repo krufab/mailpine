@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+# Download virus databases if they don't exist locally
+if [[ ! -f /data/antivirus/main.cvd ]]; then
+  echo "[INFO] Downloading virus database"
+  freshclam
+fi
+
+# Start clamd run script
+echo "[INFO] Freshclam launching clam"
+s6-svc -u /etc/services.d/clamd
+
+echo "[INFO] Starting freshclam"
+
+# To test configuration:
+#exec freshclam -d
+
+exec freshclam -d &>/dev/null
+
+exit 0

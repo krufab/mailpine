@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# $1 = exit code from the run script
+if [ "${1}" -eq 0 ]; then
+  echo "[INFO] _parent terminated successfully"
+  s6-svc -d /etc/services.d/_parent
+else
+  echo "[INFO] _parent: something went wrong. Exit code was: '${1}'"
+fi
+
+exit 0

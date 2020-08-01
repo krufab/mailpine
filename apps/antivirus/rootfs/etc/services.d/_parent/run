@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+echo "[INFO] _parent: launching freshclam"
+s6-svc -u /etc/services.d/freshclam
+
+echo "[INFO] _parent: clamd on hold"
+s6-svwait -u /etc/services.d/clamd
+
+echo "[INFO] _parent: clamav-milter on hold"
+s6-svwait -u /etc/services.d/clamav-milter
+
+exit 0

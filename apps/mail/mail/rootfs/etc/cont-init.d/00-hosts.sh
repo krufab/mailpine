@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 
-set -eEuo pipefail
+set -o errexit
+set -o errtrace
+set -o nounset
+set -o pipefail
 
 declare -a HOSTS_TO_CHECK=(
+"antivirus"
 "${MP_DATABASE_HOST}"
-opendkim
-opendmarc
-unbound
+#"fail2ban"
+"opendkim"
+"opendmarc"
+"unbound"
 )
 
 for HOST_TO_CHECK in "${HOSTS_TO_CHECK[@]}"; do

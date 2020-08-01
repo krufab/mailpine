@@ -160,6 +160,18 @@ if run_step "${MP_P_ALL}" "${MP_P_SEL}" "spf"; then
   configure_spf "${CONFIG_FILE}"
 fi
 
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "antivirus"; then
+  # shellcheck source=./tools/antivirus/apps_antivirus.sh
+  source "${THIS_PATH}/tools/antivirus/apps_antivirus.sh"
+  configure_antivirus "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}" "${LOG_DIR}"
+fi
+
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "fail2ban"; then
+  # shellcheck source=./tools/fail2ban/apps_fail2ban.sh
+  source "${THIS_PATH}/tools/fail2ban/apps_fail2ban.sh"
+  configure_fail2ban "${CONFIG_FILE}" "${APPS_DIR}" "${DATA_DIR}" "${LOG_DIR}"
+fi
+
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
   # shellcheck source=./tools/mariadb/apps_mariadb.sh
   source "${THIS_PATH}/tools/mariadb/apps_mariadb.sh"

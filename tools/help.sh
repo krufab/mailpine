@@ -20,7 +20,7 @@ EOF
 function print_configuration_services {
   cat <<EOF
 Mailpine config services:
- certificates mail mailpine mariadb opendkim opendmarc spf web
+ antivirus certificates fail2ban mail mailpine mariadb opendkim opendmarc spf web
 EOF
 }
 
@@ -41,7 +41,7 @@ EOF
 function print_run_services {
   cat <<EOF
 Mailpine run services:
- mail mariadb opendkim opendmarc spf web
+ antivirus fail2ban mail mariadb opendkim opendmarc spf web
 EOF
 }
 
@@ -61,6 +61,6 @@ EOF
 function print_stop_services {
   cat <<EOF
 Mailpine stop services:
- mail mariadb opendkim opendmarc spf web
+ antivirus fail2ban mail mariadb opendkim opendmarc spf web
 EOF
 }

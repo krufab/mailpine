@@ -5,6 +5,18 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
+function stop_service {
+  local config_file="${1}"
+  local apps_dir="${2}"
+  local service="${3}"
+
+  (
+    cd "${apps_dir}/${service}"
+    profile="$(get_MP_D_PROFILE_x "${config_file}" "${service}")"
+    docker-compose --project-name "${profile}" stop
+  )
+}
+
 function run_mariadb {
   local config_file="${1}"
   local apps_dir="${2}"
@@ -22,44 +34,43 @@ function run_mariadb {
   fi
 }
 
-function stop_mariadb {
+
+function run_antivirus {
   local config_file="${1}"
   local apps_dir="${2}"
+  local mp_docker_command="${3}"
 
-  (
-    cd "${apps_dir}/mariadb"
-    profile="$(get_MP_D_PROFILE_x "${config_file}" "mariadb")"
-    docker-compose --project-name "${profile}" stop
-  )
+  local service="antivirus"
+  local is_service_enabled profile
+
+  is_service_enabled="$(yq r "${config_file}" "services.${service}.enabled")"
+  if [[ "${is_service_enabled}" = "true" ]]; then
+    echo_ok "Starting ${service}"
+    (
+      cd "${apps_dir}/${service}"
+      profile="$(get_MP_D_PROFILE_x "${config_file}" "${service}")"
+      docker-compose --project-name "${profile}" ${mp_docker_command} --build
+    )
+  fi
 }
 
 function run_fail2ban {
   local config_file="${1}"
   local apps_dir="${2}"
   local mp_docker_command="${3}"
-  local is_fail2ban_enabled profile
 
-  is_fail2ban_enabled="$(yq r "${config_file}" 'services.database.internal')"
-  is_fail2ban_enabled="true"
-  if [[ "${is_fail2ban_enabled}" = "true" ]]; then
-    echo_ok "Starting fail2ban"
+  local service="fail2ban"
+  local is_service_enabled profile
+
+  is_service_enabled="$(yq r "${config_file}" "services.${service}.enabled")"
+  if [[ "${is_service_enabled}" = "true" ]]; then
+    echo_ok "Starting ${service}"
     (
-      cd "${apps_dir}/fail2ban"
-      profile="$(get_MP_D_PROFILE_x "${config_file}" "fail2ban")"
+      cd "${apps_dir}/${service}"
+      profile="$(get_MP_D_PROFILE_x "${config_file}" "${service}")"
       docker-compose --project-name "${profile}" ${mp_docker_command} --build
     )
   fi
-}
-
-function stop_fail2ban {
-  local config_file="${1}"
-  local apps_dir="${2}"
-
-  (
-    cd "${apps_dir}/fail2ban"
-    profile="$(get_MP_D_PROFILE_x "${config_file}" "fail2ban")"
-    docker-compose --project-name "${profile}" stop
-  )
 }
 
 function run_mail {
@@ -77,17 +88,6 @@ function run_mail {
     else
       docker-compose --project-name "${profile}" ${mp_docker_command} --build
     fi
-  )
-}
-
-function stop_mail {
-  local config_file="${1}"
-  local apps_dir="${2}"
-
-  (
-    cd "${apps_dir}/mail"
-    profile="$(get_MP_D_PROFILE_x "${config_file}" "mail")"
-    docker-compose --project-name "${profile}" stop
   )
 }
 
@@ -143,15 +143,4 @@ function run_web {
       docker-compose --project-name "${profile}" ${mp_docker_command} nginx
     )
   fi
-}
-
-function stop_web {
-  local config_file="${1}"
-  local apps_dir="${2}"
-
-  (
-    cd "${apps_dir}/web"
-    profile="$(get_MP_D_PROFILE_x "${config_file}" "web")"
-    docker-compose --project-name "${profile}" stop
-  )
 }

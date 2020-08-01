@@ -27,8 +27,12 @@ domains:
   - domain: 'example.net'
 
 services:
+  antivirus:
+    enabled: true
   database:
     internal: true
+  fail2ban:
+    enabled: true
   mail:
     opendkim:
       debug: true

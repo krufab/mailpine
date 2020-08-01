@@ -73,6 +73,10 @@ if run_step "${MP_P_ALL}" "${MP_P_SEL}" "mariadb"; then
   run_mariadb "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"
 fi
 
+if run_step "${MP_P_ALL}" "${MP_P_SEL}" "antivirus"; then
+  run_antivirus "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"
+fi
+
 if run_step "${MP_P_ALL}" "${MP_P_SEL}" "fail2ban"; then
   run_fail2ban "${CONFIG_FILE}" "${APPS_DIR}" "${MP_DOCKER_COMMAND}"
 fi
