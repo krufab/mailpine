@@ -100,7 +100,7 @@ EOF
     #--ocsp-must-staple
 
   if ! docker run ${DOCKER_PARAMS} neilpang/acme.sh:latest sh -c "${SH_PARAMS}"; then
-    echo "Run it again"
+    echo_error "Run it again"
     exit 1
   else
     echo_ok "Certificate created successfully"
