@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  antivirus:
+    build: .
+    env_file:
+      - .env
+    expose:
+      - 7535
+    networks:
+      - mail
+    volumes:
+      - "${MP_DATA_DIR}/antivirus:/data/antivirus"
+      - "${MP_LOG_DIR}/antivirus:/log/antivirus"
+
+networks:
+  mail:
+    external:
+      name: mp_mail_mail

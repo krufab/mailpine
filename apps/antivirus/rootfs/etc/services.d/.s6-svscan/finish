@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+# Cleaning up old services
+for svc in /etc/services.d/[a-z]*; do
+  [ -d "${svc}" ] && redirfd -w 2 /dev/null s6-svc -d -wD "${svc}"
+done
+
+exit 0

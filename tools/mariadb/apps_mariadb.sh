@@ -5,13 +5,13 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function configure_mariadb() {
-  local CONFIG_FILE APPS_DIR DATA_DIR
-  local APP_DIR
+function configure_mariadb {
+  echo_ok "Configuring mariadb"
+  local CONFIG_FILE="${1}"
+  local APPS_DIR="${2}"
+  local DATA_DIR="${3}"
 
-  CONFIG_FILE="${1}"
-  APPS_DIR="${2}"
-  DATA_DIR="${3}"
+  local APP_DIR
 
   APP_DIR="${APPS_DIR}/mariadb"
 
@@ -23,7 +23,7 @@ function configure_mariadb() {
 
     source "${APP_DIR}/.env"
 
-    set_MP_DATA_DIR_variable "${CONFIG_FILE}" "${APP_DIR}" "${DATA_DIR}"
+    set_MP_DATA_DIR_variable "${APP_DIR}" "${DATA_DIR}"
     set_TZ_variable "${CONFIG_FILE}" "${APP_DIR}"
 
     if [[ -z "${MYSQL_ROOT_PASSWORD}" ]]; then
@@ -66,4 +66,5 @@ function configure_mariadb() {
       "${APP_DIR}/rootfs/docker-entrypoint-initdb.d/init-db.sql.template" \
       > "${APP_DIR}/rootfs/docker-entrypoint-initdb.d/init-db.sql"
   )
+  echo_ok_verbose "Mariadb configuration completed successfully"
 }

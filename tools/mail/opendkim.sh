@@ -5,13 +5,12 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function generate_opendkim() {
-  local DOMAIN OPENDKIM_DIR
+function generate_opendkim {
+  local DOMAIN="${1}"
+  local OPENDKIM_DIR="${2}"
+
   local SELECTOR='mail' COMMAND_PARAMS
   local LOCAL_PUBLIC DNS_PUBLIC
-
-  DOMAIN="${1}"
-  OPENDKIM_DIR="${2}"
 
   local DOMAIN_DIR="${OPENDKIM_DIR}/keys/${DOMAIN}"
   local PRIVATE_FILE="${DOMAIN_DIR}/${SELECTOR}.private"
@@ -54,7 +53,7 @@ EOF
   fi
 }
 
-function configure_opendkim() {
+function configure_opendkim {
   echo_ok "Checking opendkim settings"
   local CONFIG_FILE OPENDKIM_DIR
   local CHROOT_BASE_DIR SELECTOR='mail'

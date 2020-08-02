@@ -8,7 +8,9 @@
 # service type  private unpriv  chroot  wakeup  maxproc command + args
 #               (yes)   (yes)   (yes)   (never) (100)
 # ==========================================================================
-smtp      inet  n       -       -       -       -       smtpd -v
+# Verbose logging
+#smtp      inet  n       -       -       -       -       smtpd -v
+smtp      inet  n       -       -       -       -       smtpd
 
 submission inet n       -       -       -       -       smtpd
   -o syslog_name=postfix/submission
@@ -67,3 +69,6 @@ scache    unix  -       -       -       -       1       scache
 #  -o smtpd_recipient_restrictions=permit_mynetworks,reject
 #  -o mynetworks=127.0.0.0/8,[::1]/128
 #  -o smtpd_authorized_xforward_hosts=127.0.0.0/8,[::1]/128
+
+# Logs -> check main.cf maillog_file
+postlog   unix-dgram n  -       n       -       1       postlogd

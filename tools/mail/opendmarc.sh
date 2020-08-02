@@ -5,7 +5,7 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function configure_opendmarc() {
+function configure_opendmarc {
   echo_ok "Checking opendmrc settings"
   local CONFIG_FILE
   local -a DOMAINS

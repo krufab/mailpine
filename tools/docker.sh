@@ -5,7 +5,7 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function check_mailpine_tools() {
+function check_mailpine_tools {
   echo_ok "Checking mailpine tools image"
   if ! docker image inspect mailpine-tools:latest > /dev/null 2>&1; then
     echo_info "Building mailpine-tools:latest image"

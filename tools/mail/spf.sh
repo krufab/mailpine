@@ -9,7 +9,7 @@ set -o pipefail
 
 #spfquery --scope mfrom --identity fabio.is --ip-address 51.15.79.253 --helo-identity mail.fabio.is
 
-function configure_spf() {
+function configure_spf {
   echo_ok "Checking spf settings"
   local CONFIG_FILE
   local -a DOMAINS
@@ -70,5 +70,5 @@ function configure_spf() {
 #	SPF_RESULT_PERMERROR
 #
   done
-  echo_ok_verbose "Spf check settings completed successfully"
+  echo_ok_verbose "Spf settings check completed successfully"
 }

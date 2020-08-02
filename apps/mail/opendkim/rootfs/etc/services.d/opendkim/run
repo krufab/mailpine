@@ -2,4 +2,7 @@
 
 echo "s6-supervise: spawning opendkim process"
 
+# More verbose
+#exec opendkim -f -v
+
 exec opendkim -f

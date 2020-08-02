@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-logger "s6-supervise: spawning process"
+logger "s6-supervise: spawning dovecot process"
 
 exec dovecot -F

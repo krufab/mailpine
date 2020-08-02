@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+# Start clamav-milter run script
+echo "[INFO] Clamd launching clamav-milter"
+s6-svc -u /etc/services.d/clamav-milter
+
+echo "[INFO] Starting clamd"
+
+# To test configuration:
+#exec clamd
+
+exec clamd &>/dev/null
+
+exit 0

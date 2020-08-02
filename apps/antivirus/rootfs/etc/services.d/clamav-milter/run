@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+echo "[INFO] Starting clamav-milter"
+
+# To test configuration:
+#exec clamav-milter
+
+exec clamav-milter &>/dev/null
+
+exit 0

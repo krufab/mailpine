@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function print_configuration_help() {
+function print_configuration_help {
   cat <<EOF
 Mailpine - configuration
 Usage: ${0} [options]
@@ -17,14 +17,14 @@ Usage: ${0} [options]
 EOF
 }
 
-function print_configuration_services() {
+function print_configuration_services {
   cat <<EOF
 Mailpine config services:
- certificates mail mailpine mariadb opendkim opendmarc spf web
+ antivirus certificates fail2ban mail mailpine mariadb opendkim opendmarc spf web
 EOF
 }
 
-function print_run_help() {
+function print_run_help {
   cat <<EOF
 Mailpine - run
 Usage: ${0} [options]
@@ -38,14 +38,14 @@ Usage: ${0} [options]
 EOF
 }
 
-function print_run_services() {
+function print_run_services {
   cat <<EOF
 Mailpine run services:
- mail mariadb opendkim opendmarc spf web
+ antivirus fail2ban mail mariadb opendkim opendmarc spf web
 EOF
 }
 
-function print_stop_help() {
+function print_stop_help {
   cat <<EOF
 Mailpine - stop
 Usage: ${0} [options]
@@ -58,9 +58,9 @@ Usage: ${0} [options]
 EOF
 }
 
-function print_stop_services() {
+function print_stop_services {
   cat <<EOF
 Mailpine stop services:
- mail mariadb opendkim opendmarc spf web
+ antivirus fail2ban mail mariadb opendkim opendmarc spf web
 EOF
 }

@@ -20,6 +20,7 @@ RUN addgroup -g 1000 vmail \
 
 RUN apk add --no-cache \
   bash \
+  bind-tools \
   busybox \
   dovecot \
   dovecot-lmtpd \
@@ -50,6 +51,3 @@ ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
     S6_KEEP_ENV=1
 
 ENTRYPOINT ["/init"]
-
-RUN apk add --no-cache \
-  bind-tools

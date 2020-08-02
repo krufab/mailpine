@@ -6,37 +6,60 @@ set -o nounset
 set -o pipefail
 
 function configure_mail() {
-  local CONFIG_FILE APPS_DIR DATA_DIR
-  local APP_DIR
+  echo_ok "Configuring mail"
+  local config_file="${1}"
+  local apps_dir="${2}"
+  local data_dir="${3}"
+  local log_dir="${4}"
 
-  CONFIG_FILE="${1}"
-  APPS_DIR="${2}"
-  DATA_DIR="${3}"
+  local app_dir="${apps_dir}/mail"
 
-  APP_DIR="${APPS_DIR}/mail"
-
-  copy_template "${APP_DIR}"
+  copy_template "${app_dir}"
 
   (
     unset TZ
     local MP_DATABASE_PASSWORD MP_DOMAIN MP_FQDN_MAIL
 
-    source "${APP_DIR}/.env"
+    source "${app_dir}/.env"
 
-    set_MP_DATA_DIR_variable "${CONFIG_FILE}" "${APP_DIR}" "${DATA_DIR}"
-    set_TZ_variable "${CONFIG_FILE}" "${APP_DIR}"
+    set_MP_DATA_DIR_variable "${app_dir}" "${data_dir}"
+    set_MP_LOG_DIR_variable "${app_dir}" "${log_dir}"
+    set_TZ_variable "${config_file}" "${app_dir}"
 
-    MP_DATABASE_HOST="$(get_MP_D_CONTAINER_x "${CONFIG_FILE}" "mariadb" "mariadb")"
-    MP_DATABASE_PASSWORD="$(grep 'MP_PASSWORD_POSTFIX=' "${APPS_DIR}/mariadb/.env")"
-    MP_DOMAIN="$(get_MP_DOMAIN "${CONFIG_FILE}")"
-    MP_FQDN_MAIL="$(get_MP_FQDN_x "${CONFIG_FILE}" "smtp")"
+    MP_DATABASE_HOST="$(get_MP_D_CONTAINER_x "${config_file}" "mariadb" "mariadb")"
+    MP_DATABASE_PASSWORD="$(grep 'MP_PASSWORD_POSTFIX=' "${apps_dir}/mariadb/.env")"
+    MP_DOMAIN="$(get_MP_DOMAIN "${config_file}")"
+    MP_FQDN_MAIL="$(get_MP_FQDN_x "${config_file}" "smtp")"
+
+    MP_MAIL_NETWORK="$(get_mynetwork "${config_file}")"
 
     sed -i \
       -e "s|^MP_DATABASE_HOST=.*$|MP_DATABASE_HOST=${MP_DATABASE_HOST}|g" \
       -e "s|^MP_DATABASE_PASSWORD=.*$|MP_DATABASE_PASSWORD=${MP_DATABASE_PASSWORD#*=}|g" \
       -e "s|^MP_DOMAIN=.*$|MP_DOMAIN=${MP_DOMAIN}|g" \
       -e "s|^MP_FQDN_MAIL=.*$|MP_FQDN_MAIL=${MP_FQDN_MAIL}|g" \
-      "${APP_DIR}/.env"
-
+      -e "s|^MP_MAIL_NETWORK=.*$|MP_MAIL_NETWORK=${MP_MAIL_NETWORK}|g" \
+      "${app_dir}/.env"
   )
+  echo_ok_verbose "Mail configuration completed successfully"
+}
+
+function get_mynetwork() {
+  local config_file="${1}"
+  local network subnet
+
+  network="$(get_MP_D_NETWORK_x "${config_file}" "mail")"
+  if docker network ls | grep -q "${network}"; then
+    subnet="$(extract_subnet "${network}")"
+  else
+    docker network create "${network}"
+    subnet="$(extract_subnet "${network}")"
+  fi
+
+  echo "${subnet}"
+}
+
+function extract_subnet {
+  local network="${1}"
+  docker network inspect "${network}" | jq -c -r '.[] | .IPAM.Config[0].Subnet'
 }

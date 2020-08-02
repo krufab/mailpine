@@ -1,6 +1,11 @@
 #!/usr/bin/env sh
 
-set -euo pipefail
+set -o errexit
+set -o nounset
+set -o pipefail
+
+echo "Substituting variables"
+envsubst '${MP_MAIL_NETWORK}' < /etc/unbound/unbound.conf | sponge /etc/unbound/unbound.conf
 
 mkdir -p /data/unbound/keys
 

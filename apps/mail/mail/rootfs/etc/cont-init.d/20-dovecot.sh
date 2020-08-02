@@ -43,6 +43,9 @@ chown -R dovecot:dovecot /var/run/dovecot
 # Avoid file_dotlock_open function exception
 rm -f /data/mail/dovecot/instances
 
+# Avoid "Compromised token secret file" error after container restart
+rm -f /var/run/dovecot/auth-token-secret.dat
+
 if [[ -f "/data/mail/dovecot/ssl-parameters.dat" ]]; then
   mv /data/mail/dovecot/ssl-parameters.dat /data/mail/dovecot/ssl-parameters.dat.backup
 fi

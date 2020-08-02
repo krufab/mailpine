@@ -2,5 +2,8 @@
 
 echo "s6-supervise: spawning opendmarc process"
 
+# More verbose
+#exec opendmarc -c /etc/opendmarc/opendmarc.conf -f -v
+
 # Need to specify config file
 exec opendmarc -c /etc/opendmarc/opendmarc.conf -f

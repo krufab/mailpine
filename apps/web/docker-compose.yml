@@ -11,10 +11,12 @@ services:
     ports: ["80:80", "443:443"]
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
+      - "${MP_LOG_DIR}/nginx:/log/nginx"
       - ./nginx/rootfs/etc/nginx/nginxconfig.io:/etc/nginx/nginxconfig.io
       - ./nginx/rootfs/etc/nginx/sites-available:/etc/nginx/sites-available
       - ./nginx/rootfs/etc/nginx/sites-enabled:/etc/nginx/sites-enabled
       - ./nginx/rootfs/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/rootfs/etc/nginx/templates:/etc/nginx/templates
 
       - mail-root:/var/www/html/mail
       - mail-socket:/var/run/mail
@@ -31,7 +33,7 @@ services:
       - database
       - mail
     volumes:
-      - "${MP_DATA_DIR}/roundcubemail/logs/:/var/www/html/logs/"
+      - "${MP_LOG_DIR}/roundcubemail:/var/www/html/logs/"
       - ./roundcubemail/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
       - ./roundcubemail/config.inc.php:/var/www/html/config/config.inc.php
       - mail-root:/var/www/html

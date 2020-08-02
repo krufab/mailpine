@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  fail2ban:
+    build:
+      context: .
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    env_file:
+      - .env
+    network_mode: "host"
+    volumes:
+      - "${MP_DATA_DIR}/fail2ban:/data/fail2ban"
+      - "${MP_LOG_DIR}:/log"

@@ -14,16 +14,23 @@ Uses Let's Encrypt certificates.
 - HTTP Strict Transport Security (HSTS)
 
 ## Components:
-- postfix
-- dovecot
-- opendkim
-- opendmarc
-- spf
-- postfixadmin
-- roundcubemail
-- nginx
-- mariadb
-- phpmyadmin
+- mail
+  - postfix
+  - dovecot
+  - opendkim
+  - opendmarc
+  - spf
+  - unbound
+- database
+  - mariadb
+- security
+  - clamav
+  - fail2ban
+- web
+  - postfixadmin
+  - roundcubemail
+  - nginx
+  - phpmyadmin
 - <del>traefik</del>
 
 ## Quickstart
@@ -72,6 +79,7 @@ Usage: ./configure.sh [options]
 - Configures mariadb
 - Configures postfix, dovecot, opendkim, opendmarc, unbound
 - Configures nginx, postfixadmin, roundcubemail, phpmyadmin
+- Configures clamav, fail2ban
 
 ### Run steps
 
@@ -93,6 +101,7 @@ Usage: ./run.sh [options]
 - Starts mariadb
 - Starts postfix, dovecot, opendkim, opendmarc, unbound
 - Starts nginx, postfixadmin, roundcubemail, phpmyadmin
+- Starts clamav, fail2ban
 
 ### Stop steps
 
@@ -112,6 +121,7 @@ Usage: ./stop.sh [options]
 - Stops nginx, postfixadmin, roundcubemail, phpmyadmin
 - Stops postfix, dovecot, opendkim, opendmarc, unbound
 - Stops mariadb
+- Stops clamav, fail2ban
 - <del>Stops traefik</del>
 
 ### Useful links

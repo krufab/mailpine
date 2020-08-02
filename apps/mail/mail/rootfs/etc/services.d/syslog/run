@@ -2,4 +2,5 @@
 
 echo "s6-supervise: spawning syslog process"
 
+#exec syslogd -n -t -L -R fail2ban
 exec syslogd -n -t

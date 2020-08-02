@@ -37,7 +37,7 @@ function strip_star {
   echo "${DOMAIN}"
 }
 
-function extract_domains_list() {
+function extract_domains_list {
   local CONFIG_FILE
   local -a DOMAINS=()
   local -a DOMAINS_JSON
@@ -68,7 +68,7 @@ function extract_domains_list() {
   echo "${DOMAINS[@]}"
 }
 
-function web_services_list() {
+function web_services_list {
   local WEB_SERVICES=(
     phpmyadmin
     postfixadmin
@@ -104,7 +104,7 @@ function extract_web_services {
   echo "${DOMAINS[@]}"
 }
 
-function extract_mail_domains_list() {
+function extract_mail_domains_list {
   local CONFIG_FILE
   local -a DOMAINS=()
   local -a DOMAINS_JSON
@@ -122,7 +122,7 @@ function extract_mail_domains_list() {
   echo "${DOMAINS[@]}"
 }
 
-function check_domain_in_certificate() {
+function check_domain_in_certificate {
   local THE_DOMAIN THE_DOMAINS_LIST
   local THE_DOMAIN_STAR
 

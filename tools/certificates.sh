@@ -5,7 +5,7 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-function get_container_network_or_die() {
+function get_container_network_or_die {
   local PORT
   local CONTAINER_NETWORK
 
@@ -20,7 +20,7 @@ function get_container_network_or_die() {
   echo "${CONTAINER_NETWORK}"
 }
 
-function generate_certificate() {
+function generate_certificate {
   local CONFIG_FILE="${1}"
   shift
   local DATA_DIR="${1}"
@@ -100,7 +100,7 @@ EOF
     #--ocsp-must-staple
 
   if ! docker run ${DOCKER_PARAMS} neilpang/acme.sh:latest sh -c "${SH_PARAMS}"; then
-    echo "Run it again"
+    echo_error "Run it again"
     exit 1
   else
     echo_ok "Certificate created successfully"
@@ -113,7 +113,7 @@ EOF
   fi
 }
 
-function check_certificate() {
+function check_certificate {
   local CERTS_DIR="${1}"
   shift
   local KEY_TYPE="${1}"
@@ -174,7 +174,7 @@ function check_certificate() {
   fi
 }
 
-function configure_certificates() {
+function configure_certificates {
   echo_ok "Checking certificates"
 
   local CONFIG_FILE DATA_DIR
