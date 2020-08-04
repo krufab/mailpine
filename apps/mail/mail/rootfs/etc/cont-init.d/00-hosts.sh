@@ -25,7 +25,7 @@ for HOST_TO_CHECK in "${HOSTS_TO_CHECK[@]}"; do
     else
       echo "[WARNING] Container IP not found with embedded DNS server... Abort!"
       echo "[WARNING] Check your ${HOST_TO_CHECK} environment variable"
-      exit 1
+      #exit 1
     fi
   else
     echo "[INFO] ${HOST_TO_CHECK} hostname found in /etc/hosts"

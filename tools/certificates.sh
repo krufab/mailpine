@@ -177,7 +177,7 @@ function configure_certificates {
   local config_file="${1}"
   local data_dir="${2}"
 
-  local certs_dirt="${data_dir}/certs"
+  local certs_dir="${data_dir}/certs"
 
   local key_type main_domain main_domain_no_star
   local -a all_domains domains extra_domains web_services
@@ -194,7 +194,7 @@ function configure_certificates {
   echo_info "All domains: '${all_domains[*]}'"
 
   for key_type in "-" "ecc_"; do
-    if ! check_certificate "${certs_dirt}" "${key_type}" "${all_domains[@]}"; then
+    if ! check_certificate "${certs_dir}" "${key_type}" "${all_domains[@]}"; then
       echo_info "Not all domains found → Requesting new certificate"
       generate_certificate "${config_file}" "${data_dir}" "${key_type}" "${main_domain_no_star}" "${all_domains[@]}"
   #  else

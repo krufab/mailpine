@@ -3,4 +3,6 @@
 bantime = 24h
 bantime.increment = true
 bantime.overalljails = true
-bantime.multipliers = 1 5 30 60 300 720 1440 2880
+#bantime.multipliers = 1 5 30 60 300 720 1440 2880
+
+usedns = warn
