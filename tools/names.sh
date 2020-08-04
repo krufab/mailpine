@@ -6,74 +6,74 @@ set -o nounset
 set -o pipefail
 
 function get_MP_DOMAIN {
-  local CONFIG_FILE="${1}"
+  local config_file="${1}"
 
-  strip_star "$(extract_main "${CONFIG_FILE}")"
+  strip_star "$(extract_main "${config_file}")"
 }
 
 function get_HOST_x {
-  local CONFIG_FILE="${1}"
-  local NAME="${2}"
+  local config_file="${1}"
+  local name="${2}"
 
-  local HOST
+  local host
 
-  case "${NAME}" in
+  case "${name}" in
     mail | smtp)
-      HOST="$(yq r "${CONFIG_FILE}" "domains[0].${NAME}")"
+      host="$(yq r "${config_file}" "domains[0].${name}")"
       ;;
     phpmyadmin | postfixadmin | roundcube)
-      HOST="$(yq r "${CONFIG_FILE}" "services.web_services.${NAME}.host")"
+      host="$(yq r "${config_file}" "services.web_services.${name}.host")"
       ;;
     *)
-      echo_error "Invalid host: ${NAME}"
+      echo_error "Invalid host: ${name}"
       exit 1
       ;;
   esac
 
-  if [[ -z "${HOST}" ]]; then
-    HOST="${NAME}"
+  if [[ -z "${host}" ]]; then
+    host="${name}"
   fi
 
-  echo "${HOST}"
+  echo "${host}"
 }
 
 function get_MP_FQDN_x {
-  local CONFIG_FILE="${1}"
-  local NAME="${2}"
+  local config_file="${1}"
+  local name="${2}"
 
-  local HOST DOMAIN
+  local domain host
 
-  DOMAIN="$(get_MP_DOMAIN "${CONFIG_FILE}")"
-  HOST="$(get_HOST_x "${CONFIG_FILE}" "${NAME}")"
+  domain="$(get_MP_DOMAIN "${config_file}")"
+  host="$(get_HOST_x "${config_file}" "${name}")"
 
-  echo "${HOST}.${DOMAIN}"
+  echo "${host}.${domain}"
 }
 
 function get_MP_D_PREFIX {
-  local CONFIG_FILE="${1}"
+  local config_file="${1}"
 
-  yq r "${CONFIG_FILE}" 'config.docker.prefix'
+  yq r "${config_file}" 'config.docker.prefix'
 }
 
 # Get Mailpine Docker profile name
 function get_MP_D_PROFILE_x {
-  local CONFIG_FILE="${1}"
-  local NAME="${2}"
+  local config_file="${1}"
+  local name="${2}"
 
-   echo "$(get_MP_D_PREFIX "${CONFIG_FILE}")${NAME}"
+   echo "$(get_MP_D_PREFIX "${config_file}")${name}"
 }
 
 function get_MP_D_NETWORK_x {
-  local CONFIG_FILE="${1}"
-  local NAME="${2}"
+  local config_file="${1}"
+  local name="${2}"
 
-  echo "$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "${NAME}")_${NAME}"
+  echo "$(get_MP_D_PROFILE_x "${config_file}" "${name}")_${name}"
 }
 
 function get_MP_D_CONTAINER_x {
-  local CONFIG_FILE="${1}"
-  local PROFILE="${2}"
-  local NAME="${3}"
+  local config_file="${1}"
+  local profile="${2}"
+  local name="${3}"
 
-  echo "$(get_MP_D_PROFILE_x "${CONFIG_FILE}" "${PROFILE}")_${NAME}_1"
+  echo "$(get_MP_D_PROFILE_x "${config_file}" "${profile}")_${name}_1"
 }

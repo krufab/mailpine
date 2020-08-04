@@ -1,8 +1,13 @@
+2020-08-04:
+- Added support for external services (#14)
+- Replaced launc commands with a single one 
+- Improved bash code
+
 2020-08-01:
-- added clamav
-- added fail2ban
-- added log folder
-- improved scripts and configurations
+- Added clamav
+- Added fail2ban
+- Added log folder
+- Improved scripts and configurations
 
 2020-07-10:
 - Removed OSCP must staple option from certificate requests as not supported by dovecot nor postfix (#10)

@@ -32,8 +32,13 @@ function configure_mail() {
     MP_FQDN_MAIL="$(get_MP_FQDN_x "${config_file}" "smtp")"
 
     MP_MAIL_NETWORK="$(get_mynetwork "${config_file}")"
+    MP_ANTIVIRUS="inet:antivirus:7357"
+    if [[ "$(yq r "${config_file}" "services.antivirus.enabled")" != "true" ]]; then
+      MP_ANTIVIRUS=""
+    fi
 
     sed -i \
+      -e "s|^MP_ANTIVIRUS=.*$|MP_ANTIVIRUS=${MP_ANTIVIRUS}|g" \
       -e "s|^MP_DATABASE_HOST=.*$|MP_DATABASE_HOST=${MP_DATABASE_HOST}|g" \
       -e "s|^MP_DATABASE_PASSWORD=.*$|MP_DATABASE_PASSWORD=${MP_DATABASE_PASSWORD#*=}|g" \
       -e "s|^MP_DOMAIN=.*$|MP_DOMAIN=${MP_DOMAIN}|g" \
@@ -47,7 +52,7 @@ function configure_mail() {
 function get_mynetwork() {
   local config_file="${1}"
   local network subnet
-
+set -x
   network="$(get_MP_D_NETWORK_x "${config_file}" "mail")"
   if docker network ls | grep -q "${network}"; then
     subnet="$(extract_subnet "${network}")"
@@ -55,7 +60,7 @@ function get_mynetwork() {
     docker network create "${network}"
     subnet="$(extract_subnet "${network}")"
   fi
-
+set +x
   echo "${subnet}"
 }
 

@@ -6,7 +6,7 @@ set -o nounset
 set -o pipefail
 
 declare -a HOSTS_TO_CHECK=(
-"antivirus"
+#"antivirus"
 "${MP_DATABASE_HOST}"
 #"fail2ban"
 "opendkim"
@@ -23,8 +23,8 @@ for HOST_TO_CHECK in "${HOSTS_TO_CHECK[@]}"; do
       echo "[INFO] Container IP found, adding a new record in /etc/hosts"
       echo "${IP} ${HOST_TO_CHECK}" >> /etc/hosts
     else
-      echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
-      echo "[ERROR] Check your ${HOST_TO_CHECK} environment variable"
+      echo "[WARNING] Container IP not found with embedded DNS server... Abort!"
+      echo "[WARNING] Check your ${HOST_TO_CHECK} environment variable"
       exit 1
     fi
   else

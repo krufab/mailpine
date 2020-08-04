@@ -13,6 +13,7 @@ function stop_service {
   (
     cd "${apps_dir}/${service}"
     profile="$(get_MP_D_PROFILE_x "${config_file}" "${service}")"
+    # shellcheck disable=SC2086
     docker-compose --project-name "${profile}" stop
   )
 }
@@ -29,11 +30,11 @@ function run_mariadb {
     (
       cd "${apps_dir}/mariadb"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "mariadb")"
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command}
     )
   fi
 }
-
 
 function run_antivirus {
   local config_file="${1}"
@@ -49,6 +50,7 @@ function run_antivirus {
     (
       cd "${apps_dir}/${service}"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "${service}")"
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command} --build
     )
   fi
@@ -68,6 +70,7 @@ function run_fail2ban {
     (
       cd "${apps_dir}/${service}"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "${service}")"
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command} --build
     )
   fi
@@ -84,8 +87,10 @@ function run_mail {
     cd "${apps_dir}/mail"
     profile="$(get_MP_D_PROFILE_x "${config_file}" "mail")"
     if [[ "${mp_docker_command}" == "restart" ]]; then
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command}
     else
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command} --build
     fi
   )
@@ -105,6 +110,7 @@ function run_web {
     (
       cd "${apps_dir}/web"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "web")"
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command} mail
     )
   fi
@@ -117,8 +123,10 @@ function run_web {
       cd "${apps_dir}/web"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "web")"
       if [[ "${mp_docker_command}" == "restart" ]]; then
+        # shellcheck disable=SC2086
         docker-compose --project-name "${profile}" ${mp_docker_command} pa
       else
+        # shellcheck disable=SC2086
         docker-compose --project-name "${profile}" ${mp_docker_command} --build pa
       fi
     )
@@ -131,6 +139,7 @@ function run_web {
     (
       cd "${apps_dir}/web"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "web")"
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command} pma
     )
   fi
@@ -140,6 +149,7 @@ function run_web {
     (
       cd "${apps_dir}/web"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "web")"
+      # shellcheck disable=SC2086
       docker-compose --project-name "${profile}" ${mp_docker_command} nginx
     )
   fi

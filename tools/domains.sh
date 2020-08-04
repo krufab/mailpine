@@ -6,130 +6,130 @@ set -o nounset
 set -o pipefail
 
 function extract_main {
-  local CONFIG_FILE
+  local config_file
 
-  CONFIG_FILE="${1}"
+  config_file="${1}"
 
-  yq r -j "${CONFIG_FILE}" | jq -r -c '.domains[0].domain'
+  yq r -j "${config_file}" | jq -r -c '.domains[0].domain'
 }
 
 function extract_main_mail {
-  local CONFIG_FILE
-  local MAIN MAIL
+  local config_file="${1}"
 
-  CONFIG_FILE="${1}"
+  local main mail
 
-  MAIN="$(strip_star "$(extract_main "${CONFIG_FILE}")")"
-  MAIL="$(yq r -j "${CONFIG_FILE}" | jq -r -c '.domains[0].mail | select (.!=null)')"
+  main="$(strip_star "$(extract_main "${config_file}")")"
+  mail="$(yq r -j "${config_file}" | jq -r -c '.domains[0].mail | select (.!=null)')"
 
-  echo "${MAIL:-imap}.${MAIN}"
+  echo "${mail:-imap}.${main}"
 }
 
 function strip_star {
-  local DOMAIN
+  local domain="${1}"
 
-  DOMAIN="${1}"
-
-  if [[ "${DOMAIN:0:1}" = '*' ]]; then
-    DOMAIN="${DOMAIN#*.}"
+  if [[ "${domain:0:1}" = '*' ]]; then
+    domain="${domain#*.}"
   fi
 
-  echo "${DOMAIN}"
+  echo "${domain}"
 }
 
 function extract_domains_list {
-  local CONFIG_FILE
-  local -a DOMAINS=()
-  local -a DOMAINS_JSON
-  local DOMAIN_JSON DOMAIN MAIL SMTP
+  local config_file="${1}"
 
-  CONFIG_FILE="${1}"
+  local -a domains=()
+  local -a domains_json
+  local domain domain_json  mail smtp
 
-  readarray -t DOMAINS_JSON < <(yq r -j "${CONFIG_FILE}" | jq -r -c '.domains[]')
+  readarray -t domains_json < <(yq r -j "${config_file}" | jq -r -c '.domains[]')
 
-  for DOMAIN_JSON in "${DOMAINS_JSON[@]}"; do
-    DOMAIN="$(echo -n "${DOMAIN_JSON}" | jq -r -c '.domain')"
-    DOMAINS+=("${DOMAIN}")
-    if [[ "${DOMAIN:0:1}" != '*' ]]; then
-      MAIL="$(echo -n "${DOMAIN_JSON}" | jq -r -c '.mail | select (.!=null)')"
-      if [[ -n "${MAIL}" ]]; then
-        DOMAINS+=("${MAIL}.${DOMAIN}")
+  for domain_json in "${domains_json[@]}"; do
+    domain="$(echo -n "${domain_json}" | jq -r -c '.domain')"
+    domains+=("${domain}")
+    if [[ "${domain:0:1}" != '*' ]]; then
+      mail="$(echo -n "${domain_json}" | jq -r -c '.mail | select (.!=null)')"
+      if [[ -n "${mail}" ]]; then
+        domains+=("${mail}.${domain}")
       else
-        DOMAINS+=("imap.${DOMAIN}")
+        domains+=("imap.${domain}")
       fi
-      SMTP="$(echo -n "${DOMAIN_JSON}" | jq -r -c '.smtp | select (.!=null)')"
-      if [[ -n "${SMTP}" ]]; then
-        DOMAINS+=("${SMTP}.${DOMAIN}")
+      smtp="$(echo -n "${domain_json}" | jq -r -c '.smtp | select (.!=null)')"
+      if [[ -n "${smtp}" ]]; then
+        domains+=("${smtp}.${domain}")
       else
-        DOMAINS+=("smtp.${DOMAIN}")
+        domains+=("smtp.${domain}")
       fi
     fi
   done
-  echo "${DOMAINS[@]}"
+  echo "${domains[@]}"
 }
 
 function web_services_list {
-  local WEB_SERVICES=(
-    phpmyadmin
-    postfixadmin
-    roundcubemail
+  local -a web_services=(
+    "phpmyadmin"
+    "postfixadmin"
+    "roundcubemail"
   )
 
-  echo "${WEB_SERVICES[@]}"
+  echo "${web_services[@]}"
 }
 
 function extract_web_services {
-  local CONFIG_FILE MAIN_DOMAIN
-  local ENABLED HOST
-  local -a DOMAINS=()
-  local -a WEB_SERVICES_LIST
+  local config_file="${1}"
+  local main_domain="${2}"
 
-  CONFIG_FILE="${1}"
-  MAIN_DOMAIN="${2}"
+  local enabled host web_service
+  local -a domains=()
+  local -a web_services_list
 
-  if [[ "${MAIN_DOMAIN:0:1}" = '*' ]]; then
+
+  if [[ "${main_domain:0:1}" = '*' ]]; then
     echo ""
     return
   fi
 
-  WEB_SERVICES_LIST=( $(web_services_list) )
+  web_services_list=( $(web_services_list) )
 
-  for WEB_SERVICE in "${WEB_SERVICES_LIST[@]}"; do
-    ENABLED="$(yq r "${CONFIG_FILE}" "services.web_services.${WEB_SERVICE}.enabled")"
-    if [[ "${ENABLED}" = "true" ]]; then
-      HOST="$(yq r "${CONFIG_FILE}" "services.web_services.${WEB_SERVICE}.host")"
-      DOMAINS+=("${HOST}.${MAIN_DOMAIN}")
+  for web_service in "${web_services_list[@]}"; do
+    enabled="$(yq r "${config_file}" "services.web_services.${web_service}.enabled")"
+    if [[ "${enabled}" = "true" ]]; then
+      host="$(yq r "${config_file}" "services.web_services.${web_service}.host")"
+      domains+=("${host}.${main_domain}")
     fi
   done
-  echo "${DOMAINS[@]}"
+  echo "${domains[@]}"
+}
+
+function extract_extra_domains {
+  local config_file="${1}"
+
+  local -a domains=()
+  readarray -t domains < <(yq r -j "${config_file}" | jq -r -c '.extra_domains[]')
+  echo "${domains[@]}"
 }
 
 function extract_mail_domains_list {
-  local CONFIG_FILE
-  local -a DOMAINS=()
-  local -a DOMAINS_JSON
-  local DOMAIN_JSON DOMAIN MAIL SMTP
+  local config_file="${1}"
+  local -a domains=()
+  local -a domains_json
+  local domain domain_json
 
-  CONFIG_FILE="${1}"
+  readarray -t domains_json < <(yq r -j "${config_file}" | jq -r -c '.domains[]')
 
-  readarray -t DOMAINS_JSON < <(yq r -j "${CONFIG_FILE}" | jq -r -c '.domains[]')
-
-  for DOMAIN_JSON in "${DOMAINS_JSON[@]}"; do
-    DOMAIN="$(echo -n "${DOMAIN_JSON}" | jq -r -c '.domain')"
-    DOMAIN="$(strip_star "${DOMAIN}")"
-    DOMAINS+=("${DOMAIN}")
+  for domain_json in "${domains_json[@]}"; do
+    domain="$(echo -n "${domain_json}" | jq -r -c '.domain')"
+    domain="$(strip_star "${domain}")"
+    domains+=("${domain}")
   done
-  echo "${DOMAINS[@]}"
+  echo "${domains[@]}"
 }
 
 function check_domain_in_certificate {
-  local THE_DOMAIN THE_DOMAINS_LIST
-  local THE_DOMAIN_STAR
+  local domain="${1}"
+  local domains_list="${2}"
 
-  THE_DOMAIN="${1}"
-  THE_DOMAINS_LIST="${2}"
-  # create *.example.com
-  THE_DOMAIN_STAR="*.${THE_DOMAIN#*.}"
+  # creates *.example.com
+  local domain_star="*.${domain#*.}"
 
-  grep -F -q -e " ${THE_DOMAIN} " <<< " ${THE_DOMAINS_LIST} " || grep -F -q -e " ${THE_DOMAIN_STAR} " <<< " ${THE_DOMAINS_LIST} "
+  grep -F -q -e " ${domain} " <<< " ${domains_list} " || grep -F -q -e " ${domain_star} " <<< " ${domains_list} "
 }

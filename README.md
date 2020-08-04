@@ -1,16 +1,14 @@
 # Mailpine - (alpha version)
-
 Pre-configured A+ Alpine based mail server with web frontend for user managements.
 Uses Let's Encrypt certificates.
 
 ## Security
-
 - A+ in with 100% score with ssl labs and testssl.sh
 - Let's Encrypt certificates
 - TLS 1.2
 - DH 4096
 - ECDH 384
-- OCSP Stapling
+- <del>OCSP Stapling</del>
 - HTTP Strict Transport Security (HSTS)
 
 ## Components:
@@ -34,38 +32,33 @@ Uses Let's Encrypt certificates.
 - <del>traefik</del>
 
 ## Quickstart
-
 ```bash
 cp config.template.yml config.yml
 
 vi config.yml
 
-./configure.sh
+./mp.sh configure
 
-./run.sh
+./mp.sh run
 ```
 
 ## Description
-
 ### Required tools
 - nc (netcat)
 - readlink with -f support (from coreutils package)
 - yq (https://github.com/mikefarah/yq)
 
-### Configuration steps
-
+### Configuration command
 ```bash
-./configure.sh [options]
-./configure.sh --help
+./mp.sh configure [options]
+./mp.sh configure --help
 
-Mailpine - configuration
-Usage: ./configure.sh [options]
+Mailpine - Configure mailpine
+Usage: ./tools/configure.sh c|configure [options]
 
  -d --debug   Set services in debug mode
  -h --help    This help
  -l --list    Show the list of available services
- -r --run     Run services after configuration
- -R --restart Restart services after configuration
  -s --service [service] Configure / run / restart the specific service
                 Can be used multiple times
  -v --verbose Print out a verbose output of this script
@@ -81,14 +74,13 @@ Usage: ./configure.sh [options]
 - Configures nginx, postfixadmin, roundcubemail, phpmyadmin
 - Configures clamav, fail2ban
 
-### Run steps
-
+### Run command
 ```bash
-./run.sh [options]
-./run.sh --help
+./mp.sh r|run [options]
+./mp.sh r|run --help
 
-Mailpine - run
-Usage: ./run.sh [options]
+Mailpine - Run mailpine
+Usage: ./tools/run.sh r|run [options]
 
  -h --help    This help
  -l --list    Show the list of available services
@@ -103,14 +95,13 @@ Usage: ./run.sh [options]
 - Starts nginx, postfixadmin, roundcubemail, phpmyadmin
 - Starts clamav, fail2ban
 
-### Stop steps
-
+### Stop command
 ```bash
-./stop.sh [options]
-./stop.sh --help
+./mp.sh s|stop [options]
+./mp.sh s|stop --help
 
-Mailpine - stop
-Usage: ./stop.sh [options]
+Mailpine - Stop mailpine
+Usage: ./tools/stop.sh s|stop [options]
 
  -h --help    This help
  -l --list    Show the list of available services
@@ -124,7 +115,22 @@ Usage: ./stop.sh [options]
 - Stops clamav, fail2ban
 - <del>Stops traefik</del>
 
-### Useful links
+### Update command
+```bash
+./mp.sh u|update [options]
+./mp.sh u|update --help
+
+Mailpine - Stop, configure and relaunch mailpine
+Usage: ./tools/update.sh u|update [options]
+
+ -h --help    This help
+ -l --list    Show the list of available services
+ -s --service [service] Configure / run / restart the specific service
+                Can be used multiple times
+```
+Utility to stop, configure and restart services
+
+## Useful links
 - https://ssl-config.mozilla.org/
 - https://www.digitalocean.com/community/tools/nginx
 - https://community.letsencrypt.org/t/howto-a-with-all-100-s-on-ssl-labs-test-using-nginx-mainline-stable/55033
