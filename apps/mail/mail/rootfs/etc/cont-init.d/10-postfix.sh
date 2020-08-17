@@ -13,10 +13,13 @@ for SQL_CF in $(ls -p /etc/postfix/sql/ | grep -v '/'); do
     < "/etc/postfix/sql/${SQL_CF}" | sponge "/etc/postfix/sql/${SQL_CF}"
 done
 
-envsubst '${MP_DOMAIN},${MP_FQDN_MAIL}' < /etc/postfix/main.cf | sponge /etc/postfix/main.cf
 envsubst '${MP_FQDN_MAIL}' < /etc/postfix/header_checks | sponge /etc/postfix/header_checks
-envsubst '${MP_DOMAIN}' < /etc/postfix/virtual | sponge /etc/postfix/virtual
+
+envsubst '${MP_ANTIVIRUS}' < /etc/postfix/main.cf | sponge /etc/postfix/main.cf
+envsubst '${MP_DOMAIN},${MP_FQDN_MAIL}' < /etc/postfix/main.cf | sponge /etc/postfix/main.cf
 envsubst '${MP_MAIL_NETWORK}' < /etc/postfix/main.cf | sponge /etc/postfix/main.cf
+
+envsubst '${MP_DOMAIN}' < /etc/postfix/virtual | sponge /etc/postfix/virtual
 
 echo "Updating spool"
 rm -rf /var/spool/postfix
@@ -30,7 +33,7 @@ cat /etc/postfix/main.cf | grep smtp_dns_support_level
 
 echo "Creating postfix folders"
 # Create all needed folders in queue directory
-POSTFIX_FOLDERS=(
+declare -a POSTFIX_FOLDERS=(
 etc
 dev
 maildrop

@@ -6,168 +6,166 @@ set -o nounset
 set -o pipefail
 
 function get_container_network_or_die {
-  local PORT
-  local CONTAINER_NETWORK
+  local port="${1}"
+  local container_network
 
-  PORT="${1}"
-
-  CONTAINER_NETWORK="$(docker container ls --filter "publish=${PORT}" --format "{{.Networks}}")"
-  if [[ -z "${CONTAINER_NETWORK}" ]]; then
+  container_network="$(docker container ls --filter "publish=${port}" --format "{{.Networks}}")"
+  if [[ -z "${container_network}" ]]; then
     echo_error "Could not find container listening on port 80"
     exit 1
   fi
 
-  echo "${CONTAINER_NETWORK}"
+  echo "${container_network}"
 }
 
 function generate_certificate {
-  local CONFIG_FILE="${1}"
+  local config_file="${1}"
   shift
-  local DATA_DIR="${1}"
+  local data_dir="${1}"
   shift
-  local KEY_TYPE="${1}"
+  local key_type="${1}"
   shift
-  local MAIN_DOMAIN_NO_STAR="${1}"
+  local main_domain_no_star="${1}"
   shift
 
-  local -a ALL_DOMAINS=( ${@} )
-  local -a LIST_DOMAINS
-  local IS_STAGING_CA DNS_CHALLENGE DOCKER_PARAMS
+  local -a all_domains=( ${@} )
+  local -a list_domains
+  local acme_sh_network dns_challenge docker_params domain force is_staging_ca sh_params
 
-  local ACME_DIR="${DATA_DIR}/acme.sh"
-  local CERTS_DIR="${DATA_DIR}/certs"
-  local ACME_CA=""
-  local KEY_LENGTH KEY_TYPE_FOLDER
+  local acme_dir="${data_dir}/acme.sh"
+  local certs_dir="${data_dir}/certs"
+  local acme_ca=""
+  local key_length key_type_folder
 
-  if [[ "${KEY_TYPE}" == "-" ]]; then
-    KEY_LENGTH="$(yq r "${CONFIG_FILE}" "config[acme.sh].keylength")"
-    KEY_TYPE=""
-    KEY_TYPE_FOLDER=""
+  if [[ "${key_type}" == "-" ]]; then
+    key_length="$(yq r "${config_file}" "config[acme.sh].keylength")"
+    key_type=""
+    key_type_folder=""
   else
-    KEY_LENGTH="$(yq r "${CONFIG_FILE}" "config[acme.sh].keylength-ec")"
-    KEY_TYPE_FOLDER="_ecc"
+    key_length="$(yq r "${config_file}" "config[acme.sh].keylength-ec")"
+    key_type_folder="_ecc"
   fi
 
-  IS_STAGING_CA="$(yq r "${CONFIG_FILE}" "config[acme.sh].staging")"
-  if [[ "${IS_STAGING_CA}" == "true" ]]; then
-    ACME_CA="--test"
+  is_staging_ca="$(yq r "${config_file}" "config[acme.sh].staging")"
+  if [[ "${is_staging_ca}" == "true" ]]; then
+    acme_ca="--test"
   fi
-  DNS_CHALLENGE="$(yq r "${CONFIG_FILE}" "config[acme.sh].default_dns_challenge")"
+  dns_challenge="$(yq r "${config_file}" "config[acme.sh].default_dns_challenge")"
 
-  FORCE="$(yq r "${CONFIG_FILE}" "config[acme.sh].force")"
-  if [[ ${FORCE} == "true" ]]; then
-    FORCE="--force"
+  force="$(yq r "${config_file}" "config[acme.sh].force")"
+  if [[ ${force} == "true" ]]; then
+    force="--force"
   else
-    FORCE=""
+    force=""
   fi
-  echo_info "DNS challenge: '${DNS_CHALLENGE}'"
+  echo_info "DNS challenge: '${dns_challenge}'"
 
-  if [[ "${DNS_CHALLENGE}" = "" ]] && grep -q -F -e '*' <<< " ${ALL_DOMAINS[*]} "; then
-    echo "${ALL_DOMAINS[*]}"
+  if [[ "${dns_challenge}" = "" ]] && grep -q -F -e '*' <<< " ${all_domains[*]} "; then
+    echo "${all_domains[*]}"
     echo_error "Error: *.domains require a dns challenge"
     exit 1
   fi
 
-  LIST_DOMAINS=("-d ${MAIN_DOMAIN_NO_STAR}")
-  for DOMAIN in "${ALL_DOMAINS[@]}"; do
-    LIST_DOMAINS+=("-d ${DOMAIN}")
+  list_domains=("-d ${main_domain_no_star}")
+  for domain in "${all_domains[@]}"; do
+    list_domains+=("-d ${domain}")
   done
-
-  declare ACME_SH_NETWORK
 
   if ! nc -z localhost 80 &>/dev/null; then
     # No nginx
     echo_info_verbose "Port 80 free"
-    ACME_SH_NETWORK="host"
+    acme_sh_network="host"
   else
     echo_info_verbose "Port 80 in use, using nginx"
     # Look for nginx container's network
-    ACME_SH_NETWORK="$(get_container_network_or_die "80")"
+    acme_sh_network="$(get_container_network_or_die "80")"
   fi
 
-  DOCKER_PARAMS="$(cat <<EOF
---rm --name mp_acme_sh --net=${ACME_SH_NETWORK} \
-  -v ${ACME_DIR}:/acme.sh \
-  -v ${CERTS_DIR}:/certs
+  docker_params="$(cat <<EOF
+--rm --name mp_acme_sh --net=${acme_sh_network} \
+  -v ${acme_dir}:/acme.sh \
+  -v ${certs_dir}:/certs
 EOF
   )"
 
-  SH_PARAMS="$(cat <<EOF
-acme.sh --cert-home /certs --issue ${ACME_CA} --ecc --keylength ${KEY_LENGTH} --accountkeylength 4096 --standalone ${LIST_DOMAINS[@]} ${DNS_CHALLENGE} ${FORCE}
+  sh_params="$(cat <<EOF
+acme.sh --cert-home /certs --issue ${acme_ca} --ecc --keylength ${key_length} --accountkeylength 4096 --standalone ${list_domains[@]} ${dns_challenge} ${force}
 EOF
     )"
 
     #--ocsp-must-staple
 
-  if ! docker run ${DOCKER_PARAMS} neilpang/acme.sh:latest sh -c "${SH_PARAMS}"; then
+  # shellcheck disable=SC2086
+  if ! docker run ${docker_params} neilpang/acme.sh:latest sh -c "${sh_params}"; then
     echo_error "Run it again"
     exit 1
   else
     echo_ok "Certificate created successfully"
-    ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/fullchain.cer" "${CERTS_DIR}/${KEY_TYPE}fullchain.cer"
-    ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/${MAIN_DOMAIN_NO_STAR}.key" "${CERTS_DIR}/${KEY_TYPE}server.key"
+    ln -s -f "${main_domain_no_star}${key_type_folder}/fullchain.cer" "${certs_dir}/${key_type}fullchain.cer"
+    ln -s -f "${main_domain_no_star}${key_type_folder}/${main_domain_no_star}.key" "${certs_dir}/${key_type}server.key"
   fi
 
-  if [[ ! -f "${CERTS_DIR}/ca.cer" ]]; then
-    ln -s -f "${MAIN_DOMAIN_NO_STAR}${KEY_TYPE_FOLDER}/ca.cer" "${CERTS_DIR}/ca.cer"
+  if [[ ! -f "${certs_dir}/ca.cer" ]]; then
+    ln -s -f "${main_domain_no_star}${key_type_folder}/ca.cer" "${certs_dir}/ca.cer"
   fi
 }
 
 function check_certificate {
-  local CERTS_DIR="${1}"
+  local certs_dir="${1}"
   shift
-  local KEY_TYPE="${1}"
+  local key_type="${1}"
   shift
-  local -a ALL_DOMAINS=( ${@} )
+  local -a all_domains=( ${@} )
 
-  local CERT_FILE SAN SHOULD_GENERATE_CERTIFICATE
-  local -i EXPIRE_DAYS=15 FOUND_ALL
-  local -i EXPIRE_DAYS_IN_SEC=$(( 3600*24*EXPIRE_DAYS ))
+  local cert_file="${certs_dir}/${key_type}fullchain.cer"
+  local found_all san should_generate_certificate
+  local -i expire_days=15
+  local -i expire_days_in_sec=$(( 3600*24*expire_days ))
 
-  if [[ "${KEY_TYPE}" == "-" ]]; then
-    KEY_TYPE=""
+  if [[ "${key_type}" == "-" ]]; then
+    key_type=""
   fi
 
-  CERT_FILE="${CERTS_DIR}/${KEY_TYPE}fullchain.cer"
-  echo_ok_verbose "Certificate: ${CERT_FILE}"
+  cert_file="${certs_dir}/${key_type}fullchain.cer"
+  echo_ok_verbose "Certificate: ${cert_file}"
 
-  SHOULD_GENERATE_CERTIFICATE='false'
-  if [[ -f "${CERT_FILE}" ]]; then
-    if openssl x509 -checkend "${EXPIRE_DAYS_IN_SEC}" -noout -in "${CERT_FILE}" > /dev/null; then
+  should_generate_certificate='false'
+  if [[ -f "${cert_file}" ]]; then
+    if openssl x509 -checkend "${expire_days_in_sec}" -noout -in "${cert_file}" > /dev/null; then
       echo_ok "Certificate will not expire soon"
 
-      SAN="$(docker run --rm -v \
-        "${CERTS_DIR}:/tmp" mailpine-tools:latest bash -ce "
+      san="$(docker run --rm -v \
+        "${certs_dir}:/tmp" mailpine-tools:latest bash -ce "
           openssl x509 -noout -ext subjectAltName \
-            -in "/tmp/${KEY_TYPE}fullchain.cer" \
-          | grep "DNS:" | sed -E -e 's/^\s+|DNS:|,|\s+$//g'
+            -in \"/tmp/${key_type}fullchain.cer\" \
+          | grep \"DNS:\" | sed -E -e 's/^\s+|DNS:|,|\s+$//g'
       ")"
 
-      echo_info "SAN: ${SAN}"
+      echo_info "SAN: ${san}"
 
-      FOUND_ALL=1
-      for DOMAIN in "${ALL_DOMAINS[@]}"; do
-        if ! check_domain_in_certificate "${DOMAIN}" "${SAN}"; then
-          echo_error "Missing domain in certificate: '${DOMAIN}'"
-          FOUND_ALL=0
+      found_all="true"
+      for domain in "${all_domains[@]}"; do
+        if ! check_domain_in_certificate "${domain}" "${san}"; then
+          echo_error "Missing domain in certificate: '${domain}'"
+          found_all="false"
         fi
       done
 
-      if [[ FOUND_ALL -eq 0 ]]; then
+      if [[ "${found_all}" == "false" ]]; then
         echo_error "The certificate does not contain all domains"
-        SHOULD_GENERATE_CERTIFICATE='true'
+        should_generate_certificate='true'
       fi
 
     else
-      echo_error "Certificate expired or will expire in less than ${EXPIRE_DAYS} days"
-      SHOULD_GENERATE_CERTIFICATE='true'
+      echo_error "Certificate expired or will expire in less than ${expire_days} days"
+      should_generate_certificate='true'
     fi
   else
-    echo_error "Certificate file '${CERT_FILE}' does not exist"
-    SHOULD_GENERATE_CERTIFICATE='true'
+    echo_error "Certificate file '${cert_file}' does not exist"
+    should_generate_certificate='true'
   fi
 
-  if [[ "${SHOULD_GENERATE_CERTIFICATE}" = 'true' ]]; then
+  if [[ "${should_generate_certificate}" = 'true' ]]; then
     return 1
   else
     return 0
@@ -176,32 +174,29 @@ function check_certificate {
 
 function configure_certificates {
   echo_ok "Checking certificates"
+  local config_file="${1}"
+  local data_dir="${2}"
 
-  local CONFIG_FILE DATA_DIR
-  local CERTS_DIR
-  local MAIN_DOMAIN MAIN_DOMAIN_NO_STAR
-  local -a DOMAINS WEB_SERVICES ALL_DOMAINS
+  local certs_dir="${data_dir}/certs"
 
-  CONFIG_FILE="${1}"
-  DATA_DIR="${2}"
+  local key_type main_domain main_domain_no_star
+  local -a all_domains domains extra_domains web_services
 
-  CERTS_DIR="${DATA_DIR}/certs"
-  CERTS_EC_DIR="${DATA_DIR}/certs-ec"
+  main_domain="$(extract_main "${config_file}")"
+  main_domain_no_star="$(strip_star "${main_domain}")"
+  domains=( $(extract_domains_list "${config_file}") )
+  web_services=( $(extract_web_services "${config_file}" "${main_domain}") )
+  extra_domains=( $(extract_extra_domains "${config_file}") )
+  all_domains=("${domains[@]}" "${web_services[@]}" "${extra_domains[@]}")
 
-  MAIN_DOMAIN="$(extract_main "${CONFIG_FILE}")"
-  MAIN_DOMAIN_NO_STAR="$(strip_star "${MAIN_DOMAIN}")"
-  DOMAINS=( $(extract_domains_list "${CONFIG_FILE}") )
-  WEB_SERVICES=( $(extract_web_services "${CONFIG_FILE}" "${MAIN_DOMAIN}") )
-  ALL_DOMAINS=("${DOMAINS[@]}" "${WEB_SERVICES[@]}")
+  echo_info "Main domain: '${main_domain}'"
+  echo_info "Main domain (no star): '${main_domain_no_star}'"
+  echo_info "All domains: '${all_domains[*]}'"
 
-  echo_info "Main domain: '${MAIN_DOMAIN}'"
-  echo_info "Main domain (no star): '${MAIN_DOMAIN_NO_STAR}'"
-  echo_info "All domains: '${ALL_DOMAINS[*]}'"
-
-  for KEY_TYPE in "-" "ecc_"; do
-    if ! check_certificate "${CERTS_DIR}" "${KEY_TYPE}" "${ALL_DOMAINS[@]}"; then
+  for key_type in "-" "ecc_"; do
+    if ! check_certificate "${certs_dir}" "${key_type}" "${all_domains[@]}"; then
       echo_info "Not all domains found → Requesting new certificate"
-      generate_certificate "${CONFIG_FILE}" "${DATA_DIR}" "${KEY_TYPE}" "${MAIN_DOMAIN_NO_STAR}" "${ALL_DOMAINS[@]}"
+      generate_certificate "${config_file}" "${data_dir}" "${key_type}" "${main_domain_no_star}" "${all_domains[@]}"
   #  else
   #    echo_ok_verbose "Certificate contains all domains"
     fi

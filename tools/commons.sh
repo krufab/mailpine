@@ -82,6 +82,15 @@ function set_MP_LOG_DIR_variable {
   fi
 }
 
+function set_MP_EXTRA_DIR_variable {
+  local app_dir="${1}"
+  local extra_dir="${2}"
+
+  if [[ -z "${MP_EXTRA_DIR}" ]]; then
+    sed -i -e "s|^MP_EXTRA_DIR.*$|MP_EXTRA_DIR=${extra_dir}|g" "${app_dir}/.env"
+  fi
+}
+
 function set_TZ_variable {
   local config_file="${1}"
   local app_dir="${2}"

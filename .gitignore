@@ -1,7 +1,7 @@
 .idea/
 backup/
 data/
-extra/
+extra/nginx/*.conf
 log/
 z_old/
 

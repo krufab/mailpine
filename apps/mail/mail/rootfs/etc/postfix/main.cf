@@ -229,11 +229,11 @@ smtpd_helo_restrictions =
 
 milter_protocol       = 6
 milter_default_action = accept
-smtpd_milters         = inet:antivirus:7357 inet:opendkim:8891 inet:opendmarc:8893
+smtpd_milters         = ${MP_ANTIVIRUS} inet:opendkim:8891 inet:opendmarc:8893
 #non_smtpd_milters     = inet:opendkim:8891 inet:opendmarc:8893
 
 
-submission_milters = inet:antivirus:7357 inet:opendkim:8891 inet:opendmarc:8893
+submission_milters = ${MP_ANTIVIRUS} inet:opendkim:8891 inet:opendmarc:8893
 non_smtpd_milters = $submission_milters
 
 ##smtpd_milters         = inet:localhost:11332

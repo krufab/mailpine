@@ -9,15 +9,18 @@ config:
     dns_renew: true
     enabled: true
     force: false
-    keylength: 4096
-    keylength-ec: ec-384
+    keylength: '4096'
+    keylength-ec: 'ec-384'
     staging: false
-  data-dir: './data'
   docker:
     prefix: mp_
-  log-dir: './log'
+  folders:
+    backup: "./backup"
+    data: "./data"
+    extra: "./extra"
+    log: "./log"
   timezone: "Europe/Luxembourg"
-  verbosity_level: 1
+  verbosity_level: 0
 
 domains:
   - domain: 'example.com'
@@ -25,6 +28,8 @@ domains:
     smtp: 'smtp'
   - domain: 'example.org'
   - domain: 'example.net'
+
+extra_domains:
 
 services:
   antivirus:

@@ -11,6 +11,7 @@ function configure_web_services {
   local apps_dir="${2}"
   local data_dir="${3}"
   local log_dir="${4}"
+  local extra_dir="${5}"
 
   local app_dir="${apps_dir}/web"
 
@@ -27,6 +28,7 @@ function configure_web_services {
 
     set_MP_DATA_DIR_variable "${app_dir}" "${data_dir}"
     set_MP_LOG_DIR_variable "${app_dir}" "${log_dir}"
+    set_MP_EXTRA_DIR_variable "${app_dir}" "${extra_dir}"
     set_TZ_variable "${config_file}" "${app_dir}"
 
     docker run --rm -v "${log_dir}:/tmp/log" \
@@ -62,11 +64,7 @@ function configure_web_services {
       "${app_dir}/.env"
   )
 
-  #       -e "s|^POSTFIXADMIN_SMTP_SERVER=.*$|POSTFIXADMIN_SMTP_SERVER=tls://${FQDN_SMTP}|g" \
-#       -e "s|^ROUNDCUBEMAIL_SMTP_SERVER=.*$|ROUNDCUBEMAIL_SMTP_SERVER=tls://${FQDN_SMTP}|g" \
-
-
-  process_web_nginx "${config_file}" "${apps_dir}" "${data_dir}"
+  process_web_nginx "${config_file}" "${apps_dir}" "${data_dir}" "${extra_dir}"
 
   echo_ok_verbose "Web services configuration completed successfully"
 }
@@ -76,12 +74,15 @@ function process_web_nginx {
   local config_file="${1}"
   local apps_dir="${2}"
   local data_dir="${3}"
+  local extra_dir="${4}"
 
   local app_dir="${apps_dir}/web"
   local service_dir="${app_dir}/nginx"
 
   if [[ ! -f "${data_dir}/nginx/dhparam.pem" ]]; then
+    echo_ok "Generating dhparam.pem file (2048 bit)"
     openssl dhparam -out "${data_dir}/nginx/dhparam.pem" 2048
+    echo_ok_verbose "dhparam.pem file generated successfully"
   fi
 
   (
@@ -108,6 +109,13 @@ function process_web_nginx {
       sed -i \
         -e "s|^MP_FQDN_${web_service^^}=.*$|MP_FQDN_${web_service^^}=${fqdn}|g" \
         "${app_dir}/.env"
+    done
+
+    local extra_conf_file
+    for extra_conf_file in "${extra_dir}/nginx/"*.conf; do
+      name="$(basename "${extra_conf_file}")"
+      echo_ok_verbose "Adding ${name} to nginx templates"
+      cp "${extra_conf_file}" "${service_dir}/rootfs/etc/nginx/templates/${name}.template"
     done
   )
 }
