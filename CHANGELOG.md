@@ -1,6 +1,9 @@
+2020-08-17:
+- Improved postfix fail2ban filter
+
 2020-08-04:
 - Added support for external services (#14)
-- Replaced launc commands with a single one 
+- Replaced launch commands with a single one 
 - Improved bash code
 
 2020-08-01:
