@@ -4,7 +4,7 @@ RUN wget -O /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay
 
 #-----------------
 
-FROM alpine:3.11 AS build
+FROM alpine:3.12 AS build
 
 RUN apk add --no-cache \
   gettext \
@@ -12,10 +12,7 @@ RUN apk add --no-cache \
 
 #-----------------
 
-FROM alpine:edge
-
-#echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-#apk add package-name@testing
+FROM alpine:3.12
 
 RUN apk add --no-cache \
   busybox \
