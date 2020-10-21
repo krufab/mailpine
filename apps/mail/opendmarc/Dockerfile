@@ -1,8 +1,8 @@
-FROM alpine:3.11 AS build
+FROM alpine:3.12 AS build
 
 RUN wget -O /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v1.21.7.0/s6-overlay-amd64.tar.gz
 
-FROM alpine:edge
+FROM alpine:3.12
 
 #echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 #apk add package-name@testing

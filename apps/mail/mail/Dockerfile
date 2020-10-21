@@ -1,10 +1,10 @@
-FROM alpine:3.11 AS overlay
+FROM alpine:3.12 AS overlay
 
 RUN wget -O /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v1.21.7.0/s6-overlay-amd64.tar.gz
 
 #-----------------
 
-FROM alpine:3.11 AS build
+FROM alpine:3.12 AS build
 
 RUN apk add --no-cache \
   gettext \
@@ -12,7 +12,7 @@ RUN apk add --no-cache \
 
 #-----------------
 
-FROM alpine:3.11
+FROM alpine:3.12
 
 RUN addgroup -g 1000 vmail \
   && adduser -h /data/mail -G vmail -u 1000 -D vmail \

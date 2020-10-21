@@ -5,6 +5,11 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
+declare MAIN_PATH
+MAIN_PATH="$(dirname "$(readlink --canonicalize "${0}")")"
+# shellcheck source=tools/help.sh
+source "${MAIN_PATH}/tools/help.sh"
+
 declare ACTION=""
 
 while [[ ${#} -gt 0 ]]; do

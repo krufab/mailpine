@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.12
 
 RUN addgroup -g 1000 vmail \
   && adduser -h /data/mail -G vmail -u 1000 -D vmail \
