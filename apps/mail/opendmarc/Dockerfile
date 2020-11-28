@@ -7,15 +7,19 @@ FROM alpine:3.12
 #echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 #apk add package-name@testing
 
-RUN apk add --no-cache \
-  busybox \
-  opendmarc --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-  tzdata
+RUN  set -e; \
+  apk -U upgrade --no-cache; \
+  apk add --no-cache \
+    busybox \
+    opendmarc --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+    tzdata \
+  ;
 
 COPY --from=build /tmp/s6-overlay.tar.gz /tmp/
 
-RUN tar -xzf /tmp/s6-overlay.tar.gz -C / \
-  && rm -rf /tmp/s6-overlay.tar.gz
+RUN set -e; \
+  tar -xzf /tmp/s6-overlay.tar.gz -C /; \
+  rm -rf /tmp/s6-overlay.tar.gz
 
 COPY rootfs /
 
