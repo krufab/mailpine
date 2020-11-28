@@ -1,11 +1,13 @@
 FROM alpine:3.12
 
 RUN set -e; \
+  apk -U upgrade --no-cache; \
   apk add --no-cache \
     fail2ban \
     iptables \
     tzdata \
-    whois; \
+    whois \
+  ; \
   rm -rf /etc/fail2ban/jail.d/*.conf;
 
 COPY rootfs /

@@ -6,17 +6,21 @@ RUN wget -O /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay
 
 FROM alpine:3.12
 
-RUN apk add --no-cache \
-  clamav \
-  clamav-libunrar \
-  clamav-milter \
-  freshclam \
-  tzdata
+RUN set -e; \
+  apk -U upgrade --no-cache; \
+  apk add --no-cache \
+    clamav \
+    clamav-libunrar \
+    clamav-milter \
+    freshclam \
+    tzdata \
+  ;
 
 COPY --from=overlay /tmp/s6-overlay.tar.gz /tmp/
 
-RUN tar -xzf /tmp/s6-overlay.tar.gz -C / \
-  && rm -rf /tmp/s6-overlay.tar.gz
+RUN set -e; \
+  tar -xzf /tmp/s6-overlay.tar.gz -C /; \
+  rm -rf /tmp/s6-overlay.tar.gz
 
 COPY rootfs /
 

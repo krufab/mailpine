@@ -14,16 +14,20 @@ RUN apk add --no-cache \
 
 FROM alpine:3.12
 
-RUN apk add --no-cache \
-  busybox \
-  openssl \
-  unbound \
-  tzdata
+RUN  set -e; \
+  apk -U upgrade --no-cache; \
+  apk add --no-cache \
+    busybox \
+    openssl \
+    unbound \
+    tzdata \
+  ;
 
 COPY --from=overlay /tmp/s6-overlay.tar.gz /tmp/
 
-RUN tar -xzf /tmp/s6-overlay.tar.gz -C / \
-  && rm -rf /tmp/s6-overlay.tar.gz
+RUN set -e; \
+  tar -xzf /tmp/s6-overlay.tar.gz -C /; \
+  rm -rf /tmp/s6-overlay.tar.gz
 
 COPY --from=build /usr/bin/envsubst /usr/bin/sponge /usr/bin/
 
