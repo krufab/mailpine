@@ -25,7 +25,7 @@ mydestination = localhost localhost.$mydomain
 #mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.0.0.0/8 192.168.0.0/16
 mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 ${MP_MAIL_NETWORK}
 
-alias_maps = hash:/etc/postfix/aliases
+alias_maps = lmdb:/etc/postfix/aliases
 
 ###############
 ## SMTP/UTF8 ##
@@ -93,9 +93,9 @@ smtpd_tls_dh1024_param_file   = /data/certs/dhparam4096.pem
 tls_preempt_cipherlist = yes
 tls_random_source      = dev:/dev/urandom
 
-smtp_tls_session_cache_database  = btree:${data_directory}/smtp_scache
-smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
-lmtp_tls_session_cache_database  = btree:${data_directory}/lmtp_scache
+smtp_tls_session_cache_database  = lmdb:${data_directory}/smtp_scache
+smtpd_tls_session_cache_database = lmdb:${data_directory}/smtpd_scache
+lmtp_tls_session_cache_database  = lmdb:${data_directory}/lmtp_scache
 
 #####################
 ## SASL PARAMETERS ##
@@ -129,7 +129,7 @@ virtual_mailbox_maps    = proxy:mysql:/etc/postfix/sql/virtual-mailbox-maps.cf,
 virtual_alias_maps      = proxy:mysql:/etc/postfix/sql/virtual-alias-maps.cf,
                           proxy:mysql:/etc/postfix/sql/virtual-alias-domain-maps.cf,
                           proxy:mysql:/etc/postfix/sql/virtual-alias-domain-catchall-maps.cf,
-                          hash:/etc/postfix/virtual
+                          lmdb:/etc/postfix/virtual
 
 ######################
 ## ERRORS REPORTING ##
