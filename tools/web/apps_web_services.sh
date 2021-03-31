@@ -44,18 +44,26 @@ function configure_web_services {
     DB_HOST="$(get_MP_D_CONTAINER_x "${config_file}" "mariadb" "mariadb")"
     POSTFIXADMIN="$(grep 'MP_PASSWORD_POSTFIXADMIN=' "${apps_dir}/mariadb/.env")"
     ROUNDCUBE="$(grep 'MP_PASSWORD_ROUNDCUBE=' "${apps_dir}/mariadb/.env")"
-    PA_SMTP_SERVER="$(get_MP_D_CONTAINER_x "${config_file}" "mail" "mail")"
+    #PA_SMTP_SERVER="$(get_MP_D_CONTAINER_x "${config_file}" "mail" "mail")"
     PA_SMTP_CLIENT="$(get_MP_D_CONTAINER_x "${config_file}" "web" "pa")"
     FQDN_MAIL="$(get_MP_FQDN_x "${config_file}" "mail")"
     FQDN_SMTP="$(get_MP_FQDN_x "${config_file}" "smtp")"
+
+    if ! docker inspect mp_mail_mail_1 &>/dev/null; then
+      echo_error "Container mp_mail_mail_1 not found, can't get its IP"
+      echo_error "Start mail part before web"
+    fi
+
+    MP_MAIL_HOST_ALIAS="$(docker inspect mp_mail_mail_1 | jq -r '.[] | .NetworkSettings.Networks.mp_mail_mail.IPAddress')"
 
     sed -i \
       -e "s|^MP_DOMAIN=.*$|MP_DOMAIN=${MP_DOMAIN}|g" \
       -e "s|^MP_FQDN_POSTFIXADMIN=.*$|MP_FQDN_POSTFIXADMIN=${MP_FQDN_POSTFIXADMIN}|g" \
       -e "s|^MP_PMA_DB_HOST=.*$|MP_PMA_DB_HOST=${DB_HOST}|g" \
+      -e "s|^MP_MAIL_HOST_ALIAS=.*$|MP_MAIL_HOST_ALIAS=${MP_MAIL_HOST_ALIAS}|g" \
       -e "s|^POSTFIXADMIN_DB_HOST=.*$|POSTFIXADMIN_DB_HOST=${DB_HOST}|g" \
       -e "s|^POSTFIXADMIN_DB_PASSWORD=.*$|POSTFIXADMIN_DB_PASSWORD=${POSTFIXADMIN#*=}|g" \
-      -e "s|^POSTFIXADMIN_SMTP_SERVER=.*$|POSTFIXADMIN_SMTP_SERVER=${PA_SMTP_SERVER}|g" \
+      -e "s|^POSTFIXADMIN_SMTP_SERVER=.*$|POSTFIXADMIN_SMTP_SERVER=${FQDN_SMTP}|g" \
       -e "s|^POSTFIXADMIN_SMTP_CLIENT=.*$|POSTFIXADMIN_SMTP_CLIENT=${PA_SMTP_CLIENT}|g" \
       -e "s|^ROUNDCUBEMAIL_DB_HOST=.*$|ROUNDCUBEMAIL_DB_HOST=${DB_HOST}|g" \
       -e "s|^ROUNDCUBEMAIL_DB_PASSWORD=.*$|ROUNDCUBEMAIL_DB_PASSWORD=${ROUNDCUBE#*=}|g" \

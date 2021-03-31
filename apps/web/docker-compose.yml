@@ -44,6 +44,8 @@ services:
       context: pa
     env_file:
       - .env
+    extra_hosts:
+      - "${POSTFIXADMIN_SMTP_SERVER}:${MP_MAIL_HOST_ALIAS}"
     networks:
       - database
       - mail
