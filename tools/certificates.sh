@@ -53,7 +53,7 @@ function generate_certificate {
   dns_challenge="$(yq r "${config_file}" "config[acme.sh].default_dns_challenge")"
 
   force="$(yq r "${config_file}" "config[acme.sh].force")"
-  if [[ ${force} == "true" ]]; then
+  if [[ "${force}" == "true" ]]; then
     force="--force"
   else
     force=""
@@ -91,7 +91,7 @@ EOF
   sh_params="$(cat <<EOF
 acme.sh --cert-home /certs --issue ${acme_ca} --ecc --keylength ${key_length} --accountkeylength 4096 --standalone ${list_domains[@]} ${dns_challenge} ${force}
 EOF
-    )"
+  )"
 
     #--ocsp-must-staple
 
