@@ -1,4 +1,4 @@
-FROM postfixadmin:3.3.7-fpm-alpine
+FROM postfixadmin:3.3.9-fpm-alpine
 
 RUN set -e; \
   apk -U upgrade --no-cache; \

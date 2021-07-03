@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   nginx:
-    image: "nginx:1.19.9-alpine"
+    image: "nginx:1.21.0-alpine"
     env_file:
       - .env
     networks:
@@ -56,7 +56,7 @@ services:
       - pa-socket:/var/run/pa
 
   pma:
-    image: phpmyadmin/phpmyadmin:5.1.0-fpm-alpine
+    image: phpmyadmin/phpmyadmin:5.1.1-fpm-alpine
     env_file:
       - .env
     networks:
