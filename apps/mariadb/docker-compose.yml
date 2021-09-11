@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   mariadb:
-    image: mariadb:10.6.2-focal
+    image: mariadb:10.6.4-focal
     env_file:
       - .env
     expose:
