@@ -9,6 +9,7 @@ services:
       - 7535
     networks:
       - mail
+    restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/antivirus:/data/antivirus"
       - "${MP_LOG_DIR}/antivirus:/log/antivirus"

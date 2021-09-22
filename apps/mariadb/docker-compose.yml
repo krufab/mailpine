@@ -10,6 +10,7 @@ services:
       - 3306
     networks:
       - mariadb
+    restart: unless-stopped
     volumes:
       - "./rootfs/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
       - "./rootfs/etc/mysql/conf.d:/etc/mysql/conf.d"
