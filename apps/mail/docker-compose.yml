@@ -18,6 +18,7 @@ services:
       - "587:587"
       - "993:993"
       - "4190:4190"
+    restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_DATA_DIR}/mail:/data/mail"
@@ -32,6 +33,7 @@ services:
       - 8891
     networks:
       - mail
+    restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_DATA_DIR}/opendkim:/data/opendkim"
@@ -45,6 +47,7 @@ services:
       - 8893
     networks:
       - mail
+    restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_DATA_DIR}/opendmarc:/data/opendmarc"
@@ -61,6 +64,7 @@ services:
       - mail
     ports:
       - "8953:8953"
+    restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_DATA_DIR}/unbound:/data/unbound"

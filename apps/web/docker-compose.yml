@@ -9,6 +9,7 @@ services:
     networks:
       - web
     ports: ["80:80", "443:443"]
+    restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
       - "${MP_LOG_DIR}/nginx:/log/nginx"
@@ -32,6 +33,7 @@ services:
     networks:
       - database
       - mail
+    restart: unless-stopped
     volumes:
       - "${MP_LOG_DIR}/roundcubemail:/var/www/html/logs/"
       - ./roundcubemail/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
@@ -49,6 +51,7 @@ services:
     networks:
       - database
       - mail
+    restart: unless-stopped
     volumes:
       - ./pa/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
       - ./pa/config.local.php:/var/www/html/config.local.php
@@ -61,6 +64,7 @@ services:
       - .env
     networks:
       - database
+    restart: unless-stopped
     volumes:
       - ./pma/usr/local/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
       - ./pma/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php

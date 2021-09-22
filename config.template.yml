@@ -29,7 +29,7 @@ domains:
   - domain: 'example.org'
   - domain: 'example.net'
 
-extra_domains:
+extra_domains: []
 
 services:
   antivirus:

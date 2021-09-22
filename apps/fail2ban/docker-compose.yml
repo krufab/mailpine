@@ -10,6 +10,7 @@ services:
     env_file:
       - .env
     network_mode: "host"
+    restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/fail2ban:/data/fail2ban"
       - "${MP_LOG_DIR}:/log"
