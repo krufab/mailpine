@@ -95,7 +95,14 @@ EOF
   )"
 
   sh_params="$(cat <<EOF
-acme.sh ${debug} --cert-home /certs --issue ${acme_ca} --ecc --keylength ${key_length} --accountkeylength 4096 --standalone ${list_domains[@]} ${dns_challenge} ${force}
+acme.sh ${debug} --cert-home /certs \
+  --issue ${acme_ca} \
+  --ecc --keylength ${key_length} \
+  --accountkeylength 4096 \
+  --standalone \
+  ${list_domains[@]} \
+  ${dns_challenge} \
+  ${force}
 EOF
   )"
 
