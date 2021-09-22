@@ -30,12 +30,13 @@ function generate_certificate {
 
   local -a all_domains=( ${@} )
   local -a list_domains
-  local acme_sh_network dns_challenge docker_params domain force is_staging_ca sh_params
+  local acme_sh_network dns_challenge docker_params domain force is_staging_ca is_debug sh_params
 
   local acme_dir="${data_dir}/acme.sh"
   local certs_dir="${data_dir}/certs"
   local acme_ca=""
   local key_length key_type_folder
+  local debug=""
 
   if [[ "${key_type}" == "-" ]]; then
     key_length="$(yq r "${config_file}" "config[acme.sh].keylength")"
@@ -44,6 +45,11 @@ function generate_certificate {
   else
     key_length="$(yq r "${config_file}" "config[acme.sh].keylength-ec")"
     key_type_folder="_ecc"
+  fi
+
+  is_debug="$(yq r "${config_file}" "config[acme.sh].debug")"
+  if [[ "${is_debug}" == "true" ]]; then
+    debug="--debug"
   fi
 
   is_staging_ca="$(yq r "${config_file}" "config[acme.sh].staging")"
@@ -89,7 +95,7 @@ EOF
   )"
 
   sh_params="$(cat <<EOF
-acme.sh --cert-home /certs --issue ${acme_ca} --ecc --keylength ${key_length} --accountkeylength 4096 --standalone ${list_domains[@]} ${dns_challenge} ${force}
+acme.sh ${debug} --cert-home /certs --issue ${acme_ca} --ecc --keylength ${key_length} --accountkeylength 4096 --standalone ${list_domains[@]} ${dns_challenge} ${force}
 EOF
   )"
 
