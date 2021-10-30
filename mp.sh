@@ -10,6 +10,11 @@ MAIN_PATH="$(dirname "$(readlink --canonicalize "${0}")")"
 # shellcheck source=tools/help.sh
 source "${MAIN_PATH}/tools/help.sh"
 
+if [[ "${#}" -eq 0 ]]; then
+  print_main_help
+  exit 0
+fi
+
 declare ACTION=""
 
 while [[ ${#} -gt 0 ]]; do

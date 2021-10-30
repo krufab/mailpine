@@ -38,13 +38,13 @@ function generate_certificate {
   local key_length key_type_folder
   local debug=""
 
-  if [[ "${key_type}" == "-" ]]; then
+  if [[ "${key_type}" == "ecc_" ]]; then
+    key_length="$(yq r "${config_file}" "config[acme.sh].keylength-ec")"
+    key_type_folder="_ecc"
+  else
     key_length="$(yq r "${config_file}" "config[acme.sh].keylength")"
     key_type=""
     key_type_folder=""
-  else
-    key_length="$(yq r "${config_file}" "config[acme.sh].keylength-ec")"
-    key_type_folder="_ecc"
   fi
 
   is_debug="$(yq r "${config_file}" "config[acme.sh].debug")"
@@ -178,7 +178,7 @@ function check_certificate {
     should_generate_certificate='true'
   fi
 
-  if [[ "${should_generate_certificate}" = 'true' ]]; then
+  if [[ "${should_generate_certificate}" == 'true' ]]; then
     return 1
   else
     return 0
