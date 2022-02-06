@@ -3,7 +3,6 @@
 JAILS="$(fail2ban-client status | grep "Jail list" | sed -E 's/^[^:]+:[ \t]+//' | sed 's/,//g')"
 TOTAL="$(echo "${JAILS}" | wc -w)"
 
-
 while true; do
   CURRENT=1
   for JAIL in ${JAILS}; do
