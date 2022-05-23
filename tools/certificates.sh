@@ -100,6 +100,7 @@ acme.sh ${debug} --cert-home /certs \
   --ecc --keylength ${key_length} \
   --accountkeylength 4096 \
   --standalone \
+  --server letsencrypt \
   ${list_domains[@]} \
   ${dns_challenge} \
   ${force}
