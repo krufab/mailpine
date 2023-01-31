@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM alpine:3.16.2
 
 RUN set -e; \
   addgroup -g 1000 vmail; \

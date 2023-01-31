@@ -78,3 +78,4 @@ postfix set-permissions
 echo "Ready to start postfix"
 #exec postfix -c /etc/postfix start-fg &>/dev/null
 #exec postfix -c /etc/postfix start-fg
+# postfix reload
