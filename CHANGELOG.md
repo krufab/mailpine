@@ -1,3 +1,6 @@
+2024-01-31:
+- Updated poxtfix main.cf to avoid being bounced back from spamhaus
+
 2020-08-17:
 - Improved postfix fail2ban filter
 
