@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   nginx:
-    image: "nginx:1.23.1-alpine"
+    image: "nginx:1.25.4-alpine"
     env_file:
       - .env
     networks:
@@ -27,7 +27,7 @@ services:
       - pma-socket:/var/run/pma
 
   mail:
-    image: roundcube/roundcubemail:1.6.0-fpm-alpine
+    image: roundcube/roundcubemail:1.6.2-fpm-alpine
     env_file:
       - .env
     networks:
@@ -59,7 +59,7 @@ services:
       - pa-socket:/var/run/pa
 
   pma:
-    image: phpmyadmin/phpmyadmin:5.2.0-fpm-alpine
+    image: phpmyadmin/phpmyadmin:5.2.1-fpm-alpine
     env_file:
       - .env
     networks:

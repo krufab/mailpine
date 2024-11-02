@@ -21,7 +21,7 @@ $config = [];
 
 // Database connection string (DSN) for read+write operations
 // Format (compatible with PEAR MDB2): db_provider://user:password@host/database
-// Currently supported db_providers: mysql, pgsql, sqlite, mssql, sqlsrv, oracle
+// Currently supported db_providers: mysql, pgsql, sqlite
 // For examples see http://pear.php.net/manual/en/package.database.mdb2.intro-dsn.php
 // NOTE: for SQLite use absolute path (Linux): 'sqlite:////full/path/to/sqlite.db?mode=0646'
 //       or (Windows): 'sqlite:///C:/full/path/to/sqlite.db'
@@ -55,12 +55,6 @@ $config['smtp_pass'] = '%p';
 // provide an URL where a user can get support for this Roundcube installation
 // PLEASE DO NOT LINK TO THE ROUNDCUBE.NET WEBSITE HERE!
 $config['support_url'] = '';
-
-// X-Frame-Options HTTP header value sent to prevent from Clickjacking.
-// Possible values: sameorigin|deny|allow-from <uri>.
-// Set to false in order to disable sending the header.
-// Setting to false as nginx is already sending it
-$config['x_frame_options'] = false;
 
 // Name your service. This is displayed on the login screen and in the window title
 $config['product_name'] = 'Roundcube Webmail';

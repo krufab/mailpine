@@ -1,8 +1,8 @@
-FROM alpine:3.16.2 AS build
+FROM alpine:3.20.3 AS build
 
 RUN wget -O /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v1.21.7.0/s6-overlay-amd64.tar.gz
 
-FROM alpine:3.16.2
+FROM alpine:3.20.3
 
 RUN  set -e; \
   apk -U upgrade --no-cache; \
