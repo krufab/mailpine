@@ -1,5 +1,13 @@
+2024-11-02:
+- Updated alpine image to 3.20.3
+- Fixed the warning message in phpmyadmin
+- Updated the nginx config files to use the new http2 directive
+
+2024-07-29:
+- Updated alpine version to 3.20.2
+
 2024-01-31:
-- Updated poxtfix main.cf to avoid being bounced back from spamhaus
+- Updated postfix main.cf to avoid being bounced back from spamhaus
 
 2020-08-17:
 - Improved postfix fail2ban filter

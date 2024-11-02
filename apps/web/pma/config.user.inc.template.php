@@ -148,7 +148,7 @@ $cfg['SaveDir'] = '';
  * ('ask' | 'always' | 'never')
  * default = 'ask'
  */
-//$cfg['SendErrorReports'] = 'always';
+$cfg['SendErrorReports'] = 'never';
 
 /**
  * 'URLQueryEncryption' defines whether phpMyAdmin will encrypt sensitive data from the URL query string.
