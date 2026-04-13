@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   mail:
     build:
@@ -71,7 +69,8 @@ services:
 
 networks:
   database:
-    external:
-      name: mp_mariadb_mariadb
+    external: true
+    name: mp_mariadb_mariadb
   mail:
     driver: bridge
+    name: mp_mail_mail

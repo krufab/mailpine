@@ -39,3 +39,6 @@ echo "Use unbound"
 echo "nameserver ${IP}" | tee /etc/resolv.conf \
                               /data/mail/postfix/spool/etc/resolv.conf \
                               >/dev/null
+
+echo "Setting limits"
+ulimit -w 2500

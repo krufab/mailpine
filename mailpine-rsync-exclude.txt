@@ -1,7 +1,15 @@
+.git/
 .idea/
 data/
 log/
+tests/
 
 .gitignore
 .DS_Store
 CHANGELOG.md
+issues.md
+description.md
+LICENSE.md
+mailpine-rsync-exclude.txt
+README.md
+TODO.md

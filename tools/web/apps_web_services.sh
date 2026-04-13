@@ -48,12 +48,12 @@ function configure_web_services {
     FQDN_MAIL="$(get_MP_FQDN_x "${config_file}" "mail")"
     FQDN_SMTP="$(get_MP_FQDN_x "${config_file}" "smtp")"
 
-    if ! docker inspect mp_mail_mail_1 &>/dev/null; then
-      echo_error "Container mp_mail_mail_1 not found, can't get its IP"
+    if ! docker inspect mp_mail-mail-1 &>/dev/null; then
+      echo_error "Container mp_mail-mail-1 not found, can't get its IP"
       echo_error "Start mail part before web"
     fi
 
-    MP_MAIL_HOST_ALIAS="$(docker inspect mp_mail_mail_1 | jq -r '.[] | .NetworkSettings.Networks.mp_mail_mail.IPAddress')"
+    MP_MAIL_HOST_ALIAS="$(docker inspect mp_mail-mail-1 | jq -r '.[] | .NetworkSettings.Networks.mp_mail_mail.IPAddress')"
 
     sed -i \
       -e "s|^MP_DOMAIN=.*$|MP_DOMAIN=${MP_DOMAIN}|g" \

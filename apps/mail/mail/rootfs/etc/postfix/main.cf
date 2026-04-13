@@ -88,7 +88,7 @@ smtpd_tls_exclude_ciphers     = aNULL,eNULL,EXPORT,DES,3DES,RC2,RC4,MD5,PSK,SRP,
 smtpd_tls_CAfile              = /etc/ssl/cert.pem
 smtpd_tls_cert_file           = /data/certs/fullchain.cer
 smtpd_tls_key_file            = /data/certs/server.key
-smtpd_tls_dh1024_param_file   = /data/certs/dhparam4096.pem
+# smtpd_tls_dh1024_param_file   = /data/certs/dhparam4096.pem
 
 tls_preempt_cipherlist = yes
 tls_random_source      = dev:/dev/urandom

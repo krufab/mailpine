@@ -1,7 +1,4 @@
-version: "3.7"
-
 services:
-
   nginx:
     image: "nginx:1.29.3-alpine"
     env_file:
@@ -73,13 +70,14 @@ services:
 
 networks:
   database:
-    external:
-      name: mp_mariadb_mariadb
+    external: true
+    name: mp_mariadb_mariadb
   mail:
-    external:
-      name: mp_mail_mail
+    external: true
+    name: mp_mail_mail
   web:
     driver: bridge
+    name: mp_web_web
 
 volumes:
   mail-root:

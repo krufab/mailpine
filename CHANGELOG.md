@@ -1,3 +1,6 @@
+2026-04-14:
+- Using docker compose instead of docker-compose
+
 2025-11-14:
 - Updated alpine image to 3.22.2
 

@@ -69,6 +69,8 @@ chgrp -R postdrop /data/mail/postfix/spool/maildrop
 chgrp -R postdrop /data/mail/postfix/spool/public
 postfix set-permissions
 
+# This avoids this warning: To disable backwards compatibility use "postconf compatibility_level=3.6" and "postfix reload"
+postconf compatibility_level=3.6
 
 # Use the local DNS server
 #echo "nameserver unbound" | tee /etc/resolv.conf \
