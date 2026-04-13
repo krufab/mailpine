@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   nginx:
-    image: "nginx:1.25.4-alpine"
+    image: "nginx:1.29.3-alpine"
     env_file:
       - .env
     networks:

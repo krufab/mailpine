@@ -25,7 +25,7 @@ function run_mariadb {
   local is_mariadb_enabled profile
 
   is_mariadb_enabled="$(yq r "${config_file}" 'services.database.internal')"
-  if [[ "${is_mariadb_enabled}" = "true" ]]; then
+  if [[ "${is_mariadb_enabled}" == "true" ]]; then
     echo_ok "Starting mariadb"
     (
       cd "${apps_dir}/mariadb"
@@ -45,7 +45,7 @@ function run_antivirus {
   local is_service_enabled profile
 
   is_service_enabled="$(yq r "${config_file}" "services.${service}.enabled")"
-  if [[ "${is_service_enabled}" = "true" ]]; then
+  if [[ "${is_service_enabled}" == "true" ]]; then
     echo_ok "Starting ${service}"
     (
       cd "${apps_dir}/${service}"
@@ -65,7 +65,7 @@ function run_fail2ban {
   local is_service_enabled profile
 
   is_service_enabled="$(yq r "${config_file}" "services.${service}.enabled")"
-  if [[ "${is_service_enabled}" = "true" ]]; then
+  if [[ "${is_service_enabled}" == "true" ]]; then
     echo_ok "Starting ${service}"
     (
       cd "${apps_dir}/${service}"

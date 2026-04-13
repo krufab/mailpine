@@ -1,0 +1,7 @@
+.idea/
+data/
+log/
+
+.gitignore
+.DS_Store
+CHANGELOG.md

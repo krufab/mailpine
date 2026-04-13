@@ -1,4 +1,4 @@
-FROM alpine:3.20.3
+FROM alpine:3.22.2
 
 RUN set -e; \
   apk -U upgrade --no-cache; \
