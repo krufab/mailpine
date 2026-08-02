@@ -63,12 +63,15 @@ postmap /etc/postfix/virtual
 #postalias /etc/postfix/aliases
 
 echo "Setting permissions"
+# This avoids this warning: To disable backwards compatibility use "postconf compatibility_level=3.6" and "postfix reload"
+postconf compatibility_level=3.6
+
 # Set permissions
 # This fails on mac
 chgrp -R postdrop /data/mail/postfix/spool/maildrop
 chgrp -R postdrop /data/mail/postfix/spool/public
-postfix set-permissions
 
+postfix set-permissions
 
 # Use the local DNS server
 #echo "nameserver unbound" | tee /etc/resolv.conf \
@@ -79,3 +82,6 @@ echo "Ready to start postfix"
 #exec postfix -c /etc/postfix start-fg &>/dev/null
 #exec postfix -c /etc/postfix start-fg
 # postfix reload
+
+echo "Setting limits"
+ulimit -n 2500

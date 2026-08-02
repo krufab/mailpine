@@ -7,4 +7,3 @@ z_old/
 
 .env
 config.yml
-rsync-exclude.txt

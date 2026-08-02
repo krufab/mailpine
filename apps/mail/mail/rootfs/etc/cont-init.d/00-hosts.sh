@@ -32,10 +32,10 @@ for HOST_TO_CHECK in "${HOSTS_TO_CHECK[@]}"; do
   fi
 done
 
-IP="$(dig A "unbound" +short +search)"
+UNBOUND_IP="$(dig A "unbound" +short +search)"
 
-echo "Use unbound"
+echo "Use unbound(${UNBOUND_IP})"
 # Use the local DNS server
-echo "nameserver ${IP}" | tee /etc/resolv.conf \
+echo "nameserver ${UNBOUND_IP}" | tee /etc/resolv.conf \
                               /data/mail/postfix/spool/etc/resolv.conf \
                               >/dev/null

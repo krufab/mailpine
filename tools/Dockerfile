@@ -1,4 +1,4 @@
-FROM alpine:3.20.3
+FROM alpine:3.22.2
 
 RUN set -e; \
   addgroup -g 1000 vmail; \
@@ -12,7 +12,8 @@ RUN set -e; \
     grep \
     libspf2-tools \
     opendkim-utils \
-    opendmarc --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+    opendmarc \
+#    opendmarc --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
     openssl \
     sed \
   ;

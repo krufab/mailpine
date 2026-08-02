@@ -1,3 +1,9 @@
+2026-04-14:
+- Using docker compose instead of docker-compose
+
+2025-11-14:
+- Updated alpine image to 3.22.2
+
 2024-11-02:
 - Updated alpine image to 3.20.3
 - Fixed the warning message in phpmyadmin

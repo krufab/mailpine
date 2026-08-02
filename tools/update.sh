@@ -37,7 +37,6 @@ declare MP_DOCKER_COMMAND="up --detach"
 declare MP_PARAMS
 declare VERBOSE="${VERBOSE:-$(get_verbose_value "${CONFIG_FILE}")}"
 
-
 while [[ ${#} -gt 0 ]]; do
   case "${1}" in
   -h|--help)

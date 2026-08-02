@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   mail:
     build:
@@ -59,11 +57,11 @@ services:
       - .env
     expose:
       - 53
-      - 8953
+#      - 8953
     networks:
       - mail
-    ports:
-      - "8953:8953"
+#    ports:
+#      - "8953:8953"
     restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
@@ -71,7 +69,10 @@ services:
 
 networks:
   database:
-    external:
-      name: mp_mariadb_mariadb
+    external: true
+    name: mp_mariadb_mariadb
   mail:
     driver: bridge
+    name: mp_mail_mail
+    attachable: true
+    external: true
