@@ -22,8 +22,7 @@ if [[ -s /data/mail/sieve/custom.sieve ]]; then
   cp -f /data/mail/sieve/custom.sieve /data/mail/sieve/default.sieve
 fi
 
-echo "Compiling scripts"
-# Compile sieve scripts
+echo "Compiling sieve scripts"
 sievec /data/mail/sieve/default.sieve
 sievec /etc/dovecot/sieve/report-ham.sieve
 sievec /etc/dovecot/sieve/report-spam.sieve

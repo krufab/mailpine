@@ -17,4 +17,4 @@ services:
 networks:
   mariadb:
     driver: bridge
-    name: mp_mariadb_mariadb
+#    name: mp_mariadb_mariadb

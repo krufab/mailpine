@@ -88,10 +88,10 @@ function run_mail {
     profile="$(get_MP_D_PROFILE_x "${config_file}" "mail")"
     if [[ "${mp_docker_command}" == "restart" ]]; then
       # shellcheck disable=SC2086
-      docker compose --project-name "${profile}" ${mp_docker_command} --force-recreate
+      docker compose --project-name "${profile}" ${mp_docker_command}
     else
       # shellcheck disable=SC2086
-      docker compose --project-name "${profile}" ${mp_docker_command} --build --force-recreate
+      docker compose --project-name "${profile}" ${mp_docker_command} --build
     fi
   )
 }
@@ -111,7 +111,7 @@ function run_web {
       cd "${apps_dir}/web"
       profile="$(get_MP_D_PROFILE_x "${config_file}" "web")"
       # shellcheck disable=SC2086
-      docker compose --project-name "${profile}" ${mp_docker_command} mail --force-recreate
+      docker compose --project-name "${profile}" ${mp_docker_command} mail
     )
   fi
 

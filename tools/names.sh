@@ -67,7 +67,7 @@ function get_MP_D_NETWORK_x {
   local config_file="${1}"
   local name="${2}"
 
-  echo "$(get_MP_D_PROFILE_x "${config_file}" "${name}")-${name}"
+  echo "$(get_MP_D_PROFILE_x "${config_file}" "${name}")_${name}"
 }
 
 function get_MP_D_CONTAINER_x {

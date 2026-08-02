@@ -57,11 +57,11 @@ services:
       - .env
     expose:
       - 53
-      - 8953
+#      - 8953
     networks:
       - mail
-    ports:
-      - "8953:8953"
+#    ports:
+#      - "8953:8953"
     restart: unless-stopped
     volumes:
       - "${MP_DATA_DIR}/certs:/data/certs:ro"
@@ -74,3 +74,5 @@ networks:
   mail:
     driver: bridge
     name: mp_mail_mail
+    attachable: true
+    external: true

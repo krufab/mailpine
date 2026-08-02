@@ -57,7 +57,7 @@ set -x
   if docker network ls | grep -q "${network}"; then
     subnet="$(extract_subnet "${network}")"
   else
-    docker network create "${network}" &>/dev/null
+    docker network create "${network}" --label "mail" &>/dev/null
     subnet="$(extract_subnet "${network}")"
   fi
 set +x
